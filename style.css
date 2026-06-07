@@ -1,0 +1,5455 @@
+/* ================================================================
+   style.css — Portfolio Tom Marcorelli
+   Thème : Cyberpunk Japonais
+   Approche : Mobile-First, CSS Custom Properties, animations CSS
+   ================================================================ */
+
+/* ================================================================
+   1. VARIABLES CSS — DESIGN TOKENS
+   Toutes les valeurs réutilisables centralisées ici.
+   ================================================================ */
+:root {
+  /* ---- Palette cyberpunk japonaise ---- */
+  --color-bg-primary:       #06080a;
+  --color-bg-secondary:     #090c0f;
+  --color-bg-card:          #0f1a22;     /* plus contrasté sur le fond */
+  --color-bg-card-hover:    #152030;
+
+  --color-neon-cyan:        #a8cce0;
+  --color-neon-magenta:     #8b9e6e;
+  --color-neon-yellow:      #c8dff0;
+  --color-neon-purple:      #2e5266;
+
+  /* ---- Textes — contraste fortement amélioré ---- */
+  --color-text-primary:     #ddeef8;     /* quasi blanc, très lisible */
+  --color-text-secondary:   #a8c4d8;     /* blanc légèrement teinté, moins bleu */
+  --color-text-muted:       #5a7a8a;     /* visible sur fond sombre */
+
+  --color-border:           rgba(168, 204, 224, 0.18);
+  --color-border-strong:    rgba(168, 204, 224, 0.45);
+
+  /* ---- Typographie ---- */
+  --font-display:  'Orbitron', sans-serif;
+  --font-japanese: 'Noto Sans JP', sans-serif;
+  --font-mono:     'Share Tech Mono', monospace;
+
+  --fs-xs:   0.75rem;
+  --fs-sm:   0.875rem;
+  --fs-base: 1rem;
+  --fs-lg:   1.125rem;
+  --fs-xl:   1.25rem;
+  --fs-2xl:  1.5rem;
+  --fs-3xl:  1.875rem;
+  --fs-4xl:  2.25rem;
+  --fs-5xl:  3rem;
+
+  /* ---- Espacements ---- */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  /* ---- Bordures & Rayons ---- */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+
+  /* ---- Ombres néon ---- */
+  --glow-cyan:    0 0 8px rgba(168, 204, 224, 0.6), 0 0 30px rgba(168, 204, 224, 0.2);
+  --glow-magenta: 0 0 8px rgba(139, 158, 110, 0.6), 0 0 30px rgba(139, 158, 110, 0.2);
+  --glow-text:    0 0 10px rgba(168, 204, 224, 0.8);
+
+  /* ---- Transitions ---- */
+  --transition-fast:   150ms ease;
+  --transition-base:   250ms ease;
+  --transition-slow:   400ms ease;
+
+  /* ---- Layout ---- */
+  --container-max: 1200px;
+  --nav-height: 70px;
+}
+
+/* ================================================================
+   2. RESET & BASE
+   ================================================================ */
+
+/* Box-sizing universel */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Comportement de scroll fluide.
+   Le fond est posé sur html (pas body) afin que les canvas position:fixed
+   avec z-index:-1 restent visibles — un background-color sur body les masquerait. */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--nav-height);
+  background-color: var(--color-bg-primary);
+}
+
+body {
+  font-family: var(--font-japanese);
+  font-size: var(--fs-base);
+  line-height: 1.8;
+  color: var(--color-text-primary);
+  background-color: transparent;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* Rétablir le curseur sur mobile (le curseur custom n'a pas de sens au touch) */
+@media (hover: none) {
+  body { cursor: auto; }
+}
+
+img, video {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: var(--color-neon-cyan);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: #fff;
+}
+
+ul { list-style: none; }
+
+/* Accessibilité : visible uniquement au focus clavier */
+:focus-visible {
+  outline: 2px solid var(--color-neon-cyan);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
+}
+
+/* ================================================================
+   3. ÉLÉMENTS DE FOND DÉCORATIFS
+   Grille néon animée, scanlines, vignette
+   ================================================================ */
+
+/* -- Grille néon --
+   On utilise background-image avec deux gradients linéaires
+   pour créer les lignes horizontales et verticales de la grille */
+.bg-grid {
+  position: fixed;
+  inset: 0;           /* Équivalent à top:0 right:0 bottom:0 left:0 */
+  z-index: -3;
+  background-image:
+    linear-gradient(rgba(168, 204, 224, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168, 204, 224, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  /* Animation de défilement vertical pour simuler une grille qui se déplace */
+  animation: grid-scroll 20s linear infinite;
+}
+
+@keyframes grid-scroll {
+  from { background-position: 0 0; }
+  to   { background-position: 0 50px; }
+}
+
+
+
+
+
+/* ================================================================
+   4. CURSEUR SPOTLIGHT — géré en JS (initCustomCursor)
+   ================================================================ */
+
+
+/* ================================================================
+   5. NAVIGATION
+   ================================================================ */
+
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-height);
+  z-index: 1000;
+  /* Glassmorphisme : fond flouté semi-transparent */
+  background: rgba(5, 8, 16, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--color-border);
+  transition: background var(--transition-base), box-shadow var(--transition-base);
+}
+
+/* Le header se renforce au scroll (via JS) */
+.site-header--scrolled {
+  background: rgba(5, 8, 16, 0.92);
+  box-shadow: 0 4px 30px rgba(0, 245, 255, 0.07);
+}
+
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+/* ---- Logo ---- */
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-lg);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+}
+
+.nav-logo__bracket {
+  color: var(--color-neon-cyan);
+  text-shadow: var(--glow-text);
+}
+
+.nav-logo__name {
+  color: var(--color-text-primary);
+}
+
+.nav-logo__kanji {
+  font-family: var(--font-japanese);
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+  margin-left: var(--space-2);
+  letter-spacing: 0.1em;
+}
+
+/* ---- Bouton hamburger (mobile) ---- */
+.nav-toggle {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 28px;
+  height: 20px;
+  background: none;
+  border: none;
+  cursor: none;        /* Utiliser notre curseur custom */
+  padding: 0;
+  z-index: 1001;
+}
+
+.nav-toggle__bar {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: var(--color-neon-cyan);
+  border-radius: 2px;
+  transition: transform var(--transition-base), opacity var(--transition-base);
+  box-shadow: var(--glow-cyan);
+}
+
+/* Animation hamburger → croix */
+.nav-toggle--active .nav-toggle__bar:nth-child(1) {
+  transform: translateY(9px) rotate(45deg);
+}
+.nav-toggle--active .nav-toggle__bar:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.nav-toggle--active .nav-toggle__bar:nth-child(3) {
+  transform: translateY(-9px) rotate(-45deg);
+}
+
+/* ---- Menu de navigation (mobile-first : caché par défaut) ---- */
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  /* Menu mobile : panneau coulissant depuis le haut */
+  position: fixed;
+  top: var(--nav-height);
+  left: 0;
+  right: 0;
+  background: rgba(5, 8, 16, 0.98);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--color-border);
+  /* Caché : déplacé au-dessus de l'écran et invisible */
+  transform: translateY(-110%);
+  opacity: 0;
+  transition: transform var(--transition-slow), opacity var(--transition-base);
+  padding: var(--space-4) 0;
+}
+
+/* Ouverture du menu via la classe ajoutée par JS */
+.nav-menu--open {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* ---- Liens de navigation ---- */
+.nav-link {
+  position: relative;
+  display: block;
+  padding: var(--space-4) var(--space-8);
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  transition: color var(--transition-fast);
+  overflow: hidden;
+}
+
+/* Kanji affiché en survol via ::after et data-kanji */
+.nav-link::after {
+  content: attr(data-kanji);   /* Lecture de l'attribut data-kanji HTML */
+  position: absolute;
+  right: var(--space-6);
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-japanese);
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  pointer-events: none;
+}
+
+.nav-link:hover {
+  color: var(--color-neon-cyan);
+  text-shadow: var(--glow-text);
+}
+
+.nav-link:hover::after {
+  opacity: 1;
+}
+
+/* Lien actif (section visible) */
+.nav-link--active {
+  color: var(--color-neon-cyan);
+  text-shadow: var(--glow-text);
+}
+
+/* Lien CTA "Me Contacter" */
+.nav-link--cta {
+  color: var(--color-neon-magenta);
+}
+.nav-link--cta:hover {
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255, 0, 110, 0.8);
+}
+
+/* ================================================================
+   6. UTILITAIRES RÉUTILISABLES
+   ================================================================ */
+
+/* ---- Container centré ---- */
+.section-container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+/* ---- Sections générales ---- */
+.section {
+  padding: var(--space-20) 0;
+}
+
+/* ---- En-têtes de section (pattern réutilisé) ---- */
+.section-header {
+  margin-bottom: var(--space-12);
+  text-align: center;
+}
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--color-neon-cyan);
+  margin-bottom: var(--space-2);
+  opacity: 0.7;
+  letter-spacing: 0.1em;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-3xl);
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: var(--color-text-primary);
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-4);
+}
+
+/* Kanji décoratif à côté du titre de section */
+.section-title__kanji {
+  font-family: var(--font-japanese);
+  font-size: var(--fs-base);
+  color: var(--color-text-muted);
+  font-weight: 300;
+}
+
+/* Ligne décorative sous le titre */
+.section-divider {
+  width: 80px;
+  height: 2px;
+  margin: var(--space-4) auto 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-neon-cyan),
+    transparent
+  );
+  box-shadow: var(--glow-cyan);
+}
+
+/* ---- Boutons ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: none;
+  transition:
+    background var(--transition-base),
+    color var(--transition-base),
+    box-shadow var(--transition-base),
+    transform var(--transition-fast);
+  text-decoration: none;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn--primary {
+  background: var(--color-neon-cyan);
+  color: var(--color-bg-primary);
+  box-shadow: var(--glow-cyan);
+}
+
+.btn--primary:hover {
+  background: #fff;
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.8);
+  color: var(--color-bg-primary);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--color-neon-magenta);
+  border: 1px solid var(--color-neon-magenta);
+  box-shadow: 0 0 10px rgba(255, 0, 110, 0.2);
+}
+
+.btn--ghost:hover {
+  background: rgba(255, 0, 110, 0.1);
+  box-shadow: var(--glow-magenta);
+  color: #fff;
+}
+
+.btn--full-width {
+  width: 100%;
+  justify-content: center;
+}
+
+.btn__icon {
+  font-size: var(--fs-sm);
+  line-height: 1;
+}
+
+/* ================================================================
+   7. SECTION HERO
+   ================================================================ */
+
+.hero-section {
+  min-height: 100vh;
+  padding-top: var(--nav-height);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-left: var(--space-6);
+  padding-right: var(--space-6);
+  position: relative;
+  overflow: hidden;
+  gap: var(--space-12);
+}
+
+/* ---- Kanjis flottants décoratifs ---- */
+.hero-kanji-deco {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Chaque kanji est positionné et animé différemment */
+.kanji-float {
+  position: absolute;
+  font-family: var(--font-japanese);
+  color: var(--color-neon-cyan);
+  opacity: 0.04;
+  font-weight: 700;
+  user-select: none;
+  animation: kanji-drift linear infinite;
+}
+
+.kanji-float--1 { font-size: 13vw; top: 5%;  left: 1%;   animation-duration: 30s; animation-delay: 0s; }
+.kanji-float--2 { font-size: 17vw; top: 38%; right: 1%;  animation-duration: 40s; animation-delay: -10s; }
+.kanji-float--3 { font-size: 10vw; bottom: 4%; left: 1%;  animation-duration: 35s; animation-delay: -5s; }
+.kanji-float--4 { font-size: 15vw; top: 18%; left: 50%;  animation-duration: 45s; animation-delay: -20s; }
+
+@keyframes kanji-drift {
+  0%   { transform: translateY(0) rotate(0deg);  }
+  50%  { transform: translateY(-30px) rotate(5deg); }
+  100% { transform: translateY(0) rotate(0deg);  }
+}
+
+/* ---- Contenu principal du hero ---- */
+.hero-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 700px;
+}
+
+/* Badge de statut */
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 50px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-6);
+  background: rgba(0, 245, 255, 0.05);
+}
+
+.hero-badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-neon-cyan);
+  box-shadow: var(--glow-cyan);
+  /* Animation de pulsation */
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.7); }
+}
+
+/* ---- Titre hero ---- */
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(var(--fs-4xl), 8vw, 5rem); /* Responsive fluid font */
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: 0.03em;
+  margin-bottom: var(--space-4);
+}
+
+/* ---- Effet Glitch ----
+   On superpose deux copies du texte via ::before et ::after
+   avec un décalage et des couleurs différentes, animées aléatoirement */
+.glitch-text {
+  position: relative;
+  display: inline-block;
+  color: var(--color-text-primary);
+}
+
+/* Couche rouge/magenta décalée à gauche */
+.glitch-text::before {
+  content: attr(data-text);   /* Texte identique via attribut data-text */
+  position: absolute;
+  top: 0;
+  left: -2px;
+  color: var(--color-neon-magenta);
+  clip-path: polygon(0 30%, 100% 30%, 100% 50%, 0 50%);
+  animation: glitch-clip-1 4s infinite linear;
+  opacity: 0;
+}
+
+/* Couche cyan décalée à droite */
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 2px;
+  color: var(--color-neon-cyan);
+  clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
+  animation: glitch-clip-2 4s infinite linear;
+  opacity: 0;
+}
+
+/* Le texte accent (nom de famille) a une couleur de base différente */
+.glitch-text--accent {
+  color: var(--color-neon-cyan);
+  text-shadow: var(--glow-text);
+}
+
+@keyframes glitch-clip-1 {
+  0%, 85%, 100% {
+    opacity: 0;
+    transform: translate(0);
+    clip-path: polygon(0 30%, 100% 30%, 100% 50%, 0 50%);
+  }
+  86% {
+    opacity: 1;
+    transform: translate(-4px, 2px) skewX(-2deg);
+    clip-path: polygon(0 20%, 100% 20%, 100% 45%, 0 45%);
+  }
+  88% {
+    opacity: 0.85;
+    transform: translate(4px, -1px) skewX(1deg);
+    clip-path: polygon(0 55%, 100% 55%, 100% 70%, 0 70%);
+  }
+  90% {
+    opacity: 0.6;
+    transform: translate(-2px, 0);
+    clip-path: polygon(0 10%, 100% 10%, 100% 30%, 0 30%);
+  }
+  92% { opacity: 0; }
+}
+
+@keyframes glitch-clip-2 {
+  0%, 87%, 100% {
+    opacity: 0;
+    transform: translate(0);
+    clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
+  }
+  88% {
+    opacity: 0.9;
+    transform: translate(5px, -2px) skewX(2deg);
+    clip-path: polygon(0 65%, 100% 65%, 100% 85%, 0 85%);
+  }
+  90% {
+    opacity: 0.7;
+    transform: translate(-3px, 1px);
+    clip-path: polygon(0 40%, 100% 40%, 100% 60%, 0 60%);
+  }
+  92% {
+    opacity: 0.4;
+    transform: translate(2px, 0);
+  }
+  94% { opacity: 0; }
+}
+
+/* Shake du titre entier pendant le glitch */
+@keyframes glitch-shake {
+  0%, 84%, 100% { transform: translate(0); }
+  85%            { transform: translate(-2px, 1px); }
+  87%            { transform: translate(3px, -1px); }
+  89%            { transform: translate(-1px, 2px); }
+  91%            { transform: translate(2px, 0); }
+  93%            { transform: translate(0); }
+}
+
+/* Flash blanc au pic du glitch */
+@keyframes glitch-flash {
+  0%, 87%, 100% { text-shadow: var(--glow-text); }
+  88%            { text-shadow: 0 0 2px #fff, 0 0 10px #fff, var(--glow-text); }
+  90%            { text-shadow: var(--glow-text); }
+}
+
+html:not(.mode-jour) .glitch-text {
+  animation: glitch-flash 6s steps(1) infinite;
+}
+
+html:not(.mode-jour) .glitch-text::before,
+html:not(.mode-jour) .glitch-text::after {
+  animation-duration: 6s;
+  animation-timing-function: steps(1);
+}
+
+html:not(.mode-jour) .hero-title {
+  animation: glitch-shake 6s steps(1) infinite;
+}
+
+/* ---- Effet typewriter CSS pur ----
+   On anime la largeur du conteneur de 0 à 100%
+   avec overflow:hidden et un caret via border-right */
+.hero-role {
+  font-family: var(--font-mono);
+  font-size: var(--fs-lg);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-4);
+}
+
+.typewriter {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 0;
+  border-right: 2px solid var(--color-neon-cyan);
+  animation:
+    typewriter-expand 2.5s steps(35) 0.5s forwards,
+    typewriter-caret 0.75s step-end infinite;
+}
+
+@keyframes typewriter-expand {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+
+@keyframes typewriter-caret {
+  0%, 100% { border-color: var(--color-neon-cyan); }
+  50%      { border-color: transparent; }
+}
+
+.hero-description {
+  font-size: var(--fs-base);
+  color: #e8f4fc;
+  margin-bottom: var(--space-8);
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-actions {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hero-actions .btn {
+  min-width: 200px;
+  justify-content: center;
+}
+
+/* ---- Terminal décoratif ---- */
+.hero-terminal {
+
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 400px;
+  background: rgba(8, 13, 26, 0.9);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 0 40px rgba(0, 245, 255, 0.1), inset 0 0 40px rgba(0, 245, 255, 0.02);
+}
+
+.terminal-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Petits cercles de fenêtre (style macOS) */
+.terminal-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.terminal-dot--red    { background: #ff5f57; }
+.terminal-dot--yellow { background: #febc2e; }
+.terminal-dot--green  { background: #28c840; }
+
+.terminal-title {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+}
+
+/* ---- Indicateur de scroll ---- */
+.scroll-indicator {
+  position: absolute;
+  bottom: var(--space-8);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+  letter-spacing: 0.2em;
+  animation: scroll-bounce 2s ease-in-out infinite;
+}
+
+@keyframes scroll-bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(6px); }
+}
+
+/* ================================================================
+   8. SECTION À PROPOS
+   ================================================================ */
+
+.about-section {
+  background: var(--color-bg-secondary);
+  position: relative;
+}
+
+/* Ligne décorative latérale */
+.about-section::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    var(--color-neon-cyan),
+    transparent
+  );
+  opacity: 0.4;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-12);
+  align-items: center;
+  /* Animation d'entrée */
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.about-grid.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---- Carte avatar ---- */
+.about-avatar-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.avatar-frame {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Initiales stylisées comme avatar */
+.avatar-initials {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-bg-card), #112040);
+  border: 2px solid var(--color-neon-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: var(--fs-3xl);
+  font-weight: 900;
+  color: var(--color-neon-cyan);
+  text-shadow: var(--glow-text);
+  box-shadow: var(--glow-cyan);
+  z-index: 1;
+}
+
+/* Anneaux orbitaux décoratifs */
+.avatar-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.avatar-ring--1 {
+  width: 150px;
+  height: 150px;
+  border-color: rgba(0, 245, 255, 0.2);
+  animation: ring-rotate 8s linear infinite;
+}
+
+.avatar-ring--2 {
+  width: 165px;
+  height: 165px;
+  border-color: rgba(255, 0, 110, 0.15);
+  animation: ring-rotate 12s linear infinite reverse;
+}
+
+@keyframes ring-rotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Badge identité */
+.about-id-badge {
+  text-align: center;
+}
+
+.about-id-badge__name {
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.05em;
+}
+
+/* Indicateur de statut avec point vert */
+.about-id-badge__status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: #28c840;
+  margin-top: var(--space-2);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #28c840;
+  box-shadow: 0 0 6px #28c840;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* ---- Contenu texte ---- */
+.about-text {
+  color: #e8f4fc;
+  margin-bottom: var(--space-4);
+  font-size: var(--fs-base);
+}
+
+/* Statistiques */
+.about-stats {
+  display: flex;
+  gap: var(--space-8);
+  margin: var(--space-8) 0;
+  padding: var(--space-6) 0;
+  border-top: 1px solid rgba(234, 179, 8, 0.5);
+  border-bottom: 1px solid rgba(234, 179, 8, 0.5);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-item__value {
+  font-family: var(--font-display);
+  font-size: var(--fs-2xl);
+  font-weight: 900;
+  color: var(--color-neon-cyan);
+  text-shadow: var(--glow-text);
+}
+
+.stat-item__label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+  letter-spacing: 0.1em;
+}
+
+/* Lien de contact inline */
+.contact-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--color-neon-cyan);
+  text-decoration: none;
+  transition: color var(--transition-fast), text-shadow var(--transition-fast);
+}
+
+.contact-inline:hover {
+  color: #fff;
+  text-shadow: var(--glow-text);
+}
+
+.contact-inline__icon {
+  color: var(--color-neon-magenta);
+}
+
+/* ================================================================
+   9. SECTION COMPÉTENCES — TABLEAU
+   ================================================================ */
+
+.skills-section {
+  position: relative;
+}
+
+/* Wrapper scrollable pour le tableau sur mobile */
+/* ================================================================
+   SKILLS CARDS — remplace le tableau débordant sur mobile
+   ================================================================ */
+
+.skills-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.skill-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.skill-card:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--glow-cyan);
+}
+
+.skill-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.skill-card__icon {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-sm);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  flex: none;
+}
+
+.skill-card__domain {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  letter-spacing: .05em;
+  margin: 0;
+}
+
+.skill-card--system  .skill-card__icon   { background: rgba(155,93,229,.15); color: var(--color-neon-purple); }
+.skill-card--system  .skill-card__domain { color: var(--color-neon-purple); }
+.skill-card--network .skill-card__icon   { background: rgba(0,245,255,.1);   color: var(--color-neon-cyan); }
+.skill-card--network .skill-card__domain { color: var(--color-neon-cyan); }
+.skill-card--security .skill-card__icon  { background: rgba(255,0,110,.1);   color: var(--color-neon-magenta); }
+.skill-card--security .skill-card__domain{ color: var(--color-neon-magenta); }
+.skill-card--dev     .skill-card__icon   { background: rgba(255,234,0,.08);  color: var(--color-neon-yellow); }
+.skill-card--dev     .skill-card__domain { color: var(--color-neon-yellow); }
+
+.skill-card__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.skill-card__item-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: 5px;
+}
+
+.skill-card__name {
+  font-size: var(--fs-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.skill-card__bar {
+  height: 3px;
+  background: rgba(255,255,255,.07);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.skill-card__bar-fill {
+  height: 100%;
+  width: var(--progress);
+  border-radius: 99px;
+  background: var(--color-neon-cyan);
+  transition: width .6s ease;
+}
+
+.skill-card--system  .skill-card__bar-fill { background: var(--color-neon-purple); }
+.skill-card--network .skill-card__bar-fill { background: var(--color-neon-cyan); }
+.skill-card--security .skill-card__bar-fill{ background: var(--color-neon-magenta); }
+.skill-card--dev     .skill-card__bar-fill { background: var(--color-neon-yellow); }
+
+/* Icônes Simple Icons & Tabler dans les skill cards */
+.skill-card__icon i {
+  font-size: 16px;
+  line-height: 1;
+  display: block;
+}
+
+/* Icônes dans les tags et listes projets */
+.project-tag i,
+.project-tech-list li i {
+  font-size: 13px;
+  vertical-align: -2px;
+  margin-right: 4px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-6);
+  /* Ombre néon sur le conteneur du tableau */
+  box-shadow: 0 0 30px rgba(0, 245, 255, 0.05);
+}
+
+.skills-table {
+  width: 100%;
+  min-width: 560px;  /* Empêche l'écrasement sur très petits écrans */
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.skills-table__caption {
+  /* Masqué visuellement mais lisible par les lecteurs d'écran */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+}
+
+/* En-tête du tableau */
+.skills-table thead tr {
+  background: rgba(0, 245, 255, 0.07);
+  border-bottom: 1px solid var(--color-border-strong);
+}
+
+.skills-table th {
+  padding: var(--space-4) var(--space-6);
+  text-align: left;
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-neon-cyan);
+}
+
+/* Lignes du tableau */
+.skills-table td {
+  padding: var(--space-3) var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+  color: #e8f4fc;            /* plus lisible que text-secondary */
+  vertical-align: middle;
+}
+
+/* Survol de ligne */
+.skills-table tbody tr:hover td {
+  background: rgba(0, 245, 255, 0.04);
+}
+
+/* Cellule de domaine (fusionnée verticalement) */
+.skills-table__domain {
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  vertical-align: middle;
+  border-right: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+/* Couleurs par domaine */
+.skills-table__domain--network  { color: var(--color-neon-cyan); }
+.skills-table__domain--system   { color: var(--color-neon-purple); }
+.skills-table__domain--security { color: var(--color-neon-magenta); }
+.skills-table__domain--dev      { color: var(--color-neon-yellow); }
+
+.domain-icon {
+  display: block;
+  font-size: var(--fs-lg);
+  margin-bottom: var(--space-1);
+}
+
+/* ---- Badges de niveau ---- */
+.level-badge {
+  display: inline-block;
+  padding: 2px var(--space-3);
+  border-radius: 50px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.level-badge--beginner {
+  background: rgba(155, 93, 229, 0.15);
+  color: var(--color-neon-purple);
+  border: 1px solid rgba(155, 93, 229, 0.4);
+}
+
+.level-badge--intermediate {
+  background: rgba(0, 245, 255, 0.1);
+  color: var(--color-neon-cyan);
+  border: 1px solid rgba(0, 245, 255, 0.3);
+}
+
+.level-badge--advanced {
+  background: rgba(255, 234, 0, 0.1);
+  color: var(--color-neon-yellow);
+  border: 1px solid rgba(255, 234, 0, 0.3);
+}
+
+/* ---- Barres de progression ----
+   On utilise une custom property --progress définie dans le HTML
+   pour que la valeur soit contrôlée de manière sémantique */
+.progress-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 140px;
+}
+
+.progress-bar__fill {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* La barre colorée utilise var(--progress) injectée via l'attribut style du HTML */
+.progress-bar__fill::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: var(--progress, 0%);
+  background: linear-gradient(90deg, var(--color-neon-cyan), var(--color-neon-purple));
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(0, 245, 255, 0.5);
+  animation: progress-reveal 1.2s ease forwards;
+}
+
+@keyframes progress-reveal {
+  from { width: 0; }
+  to   { width: var(--progress, 0%); }
+}
+
+.progress-bar__label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+  width: 36px;
+  text-align: right;
+}
+
+/* Légende des niveaux */
+.skills-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.skills-legend__sep {
+  color: var(--color-text-muted);
+}
+
+/* ================================================================
+   10. SECTION PROJETS — GRILLE
+   ================================================================ */
+
+.projects-section {
+  background: var(--color-bg-secondary);
+}
+
+/* Grille de projets : 1 colonne par défaut (mobile-first) */
+.projects-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+}
+
+/* ---- Carte projet ---- */
+.project-card {
+  position: relative;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  transition:
+    border-color var(--transition-base),
+    transform var(--transition-base),
+    box-shadow var(--transition-base);
+  /* Animation d'entrée (géré par IntersectionObserver) */
+  opacity: 0;
+  transform: translateY(20px);
+  overflow: hidden;
+}
+
+.project-card.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.5s ease, transform 0.5s ease, border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.project-card:hover {
+  border-color: var(--color-neon-cyan);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 40px rgba(0, 245, 255, 0.1);
+}
+
+/* Carte mise en avant (projet phare) */
+.project-card--featured {
+  border-color: rgba(255, 0, 110, 0.3);
+}
+
+.project-card--featured:hover {
+  border-color: var(--color-neon-magenta);
+  box-shadow: 0 10px 40px rgba(255, 0, 110, 0.1);
+}
+
+/* Lueur colorée qui apparaît au survol via un pseudo-élément */
+.project-card__glow {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(0, 245, 255, 0.05),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity var(--transition-slow);
+  pointer-events: none;
+}
+
+.project-card:hover .project-card__glow { opacity: 1; }
+.project-card--featured:hover .project-card__glow {
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 0, 110, 0.05),
+    transparent 70%
+  );
+}
+
+.project-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.project-card__number {
+  font-family: var(--font-mono);
+  font-size: var(--fs-3xl);
+  font-weight: 700;
+  color: rgba(0, 245, 255, 0.1);
+  line-height: 1;
+}
+
+.project-card__tags {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.project-tag {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+}
+
+.project-tag--highlight {
+  color: var(--color-neon-magenta);
+  border-color: rgba(255, 0, 110, 0.4);
+}
+
+.project-card__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-3);
+  letter-spacing: 0.03em;
+}
+
+.project-card__description {
+  font-size: var(--fs-sm);
+  color: #e8f4fc;            /* plus clair que text-secondary */
+  margin-bottom: var(--space-6);
+  line-height: 1.7;
+}
+
+.project-card__footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+/* Liste des technos sous forme de pills */
+.project-tech-list {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  list-style: none;
+}
+
+.project-tech-list li {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-neon-cyan);
+  opacity: 0.7;
+}
+
+.project-tech-list li:not(:last-child)::after {
+  content: '·';
+  margin-left: var(--space-2);
+  color: rgba(234, 179, 8, 0.50);
+}
+
+.project-link {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--color-neon-cyan);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--transition-fast), text-shadow var(--transition-fast);
+}
+
+.project-link:hover {
+  color: #fff;
+  text-shadow: var(--glow-text);
+}
+
+/* ================================================================
+   11. SECTION VEILLE TECHNOLOGIQUE
+   ================================================================ */
+
+.watch-section {
+  position: relative;
+}
+
+.watch-intro {
+  max-width: 640px;
+  margin: 0 auto var(--space-12);
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.watch-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+}
+
+.watch-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.watch-card.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Décalage d'animation successif sur les cartes (stagger) */
+.watch-card:nth-child(1) { transition-delay: 0s; }
+.watch-card:nth-child(2) { transition-delay: 0.1s; }
+.watch-card:nth-child(3) { transition-delay: 0.2s; }
+
+.watch-card__icon {
+  font-size: var(--fs-2xl);
+  color: var(--color-neon-cyan);
+  text-shadow: var(--glow-text);
+  margin-bottom: var(--space-4);
+}
+
+.watch-card__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-2);
+}
+
+.watch-card__topic {
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--color-neon-cyan);
+  text-shadow: var(--glow-text);
+  margin-bottom: var(--space-4);
+}
+
+.watch-card__description {
+  color: #e8f4fc;
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+}
+
+/* Liste de sources */
+.watch-sources-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.watch-sources-list li::before {
+  content: '▶ ';
+  color: var(--color-neon-cyan);
+  font-size: var(--fs-xs);
+}
+
+.watch-sources-list a {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary);
+  transition: color var(--transition-fast);
+}
+
+.watch-sources-list a:hover {
+  color: var(--color-neon-cyan);
+}
+
+/* Liste d'actualités */
+.watch-news-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.watch-news-item {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.watch-news-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.watch-news-item__date {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-neon-magenta);
+  white-space: nowrap;
+  padding-top: 2px;
+}
+
+.watch-news-item__text {
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* ================================================================
+   12. SECTIONS E5 & E6
+   ================================================================ */
+
+.exam-section {
+  background: var(--color-bg-secondary);
+}
+
+.exam-section--e5 {
+  border-left: none;
+}
+
+/* Ligne latérale colorée selon l'épreuve */
+.exam-section--e5::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, var(--color-neon-cyan), transparent);
+  opacity: 0.3;
+}
+
+.exam-section--e6::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, var(--color-neon-magenta), transparent);
+  opacity: 0.3;
+}
+
+.exam-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Image tableau de synthèse E5 — remplace le style inline */
+.exam-synthesis-img {
+  max-width: 100%;
+  border-radius: var(--radius-md);
+  display: block;
+  margin-bottom: var(--space-8);
+}
+
+.exam-info-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8);
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.exam-info-card.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.exam-info-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+}
+
+/* Badge E5 / E6 */
+.exam-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-display);
+  font-size: var(--fs-2xl);
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.exam-badge--e5 {
+  background: rgba(0, 245, 255, 0.1);
+  border: 2px solid var(--color-neon-cyan);
+  color: var(--color-neon-cyan);
+  box-shadow: var(--glow-cyan);
+}
+
+.exam-badge--e6 {
+  background: rgba(255, 0, 110, 0.1);
+  border: 2px solid var(--color-neon-magenta);
+  color: var(--color-neon-magenta);
+  box-shadow: var(--glow-magenta);
+}
+
+.exam-info-card__subtitle {
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.03em;
+}
+
+.exam-info-card__description {
+  color: #e8f4fc;
+  font-size: var(--fs-base);
+  margin-bottom: var(--space-8);
+  line-height: 1.8;
+}
+
+.exam-situations__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-6);
+}
+
+.exam-situations__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.exam-situation-item {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+/* Numéro de situation */
+.exam-situation-item__num {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-neon-cyan);
+  border: 1px solid var(--color-neon-cyan);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.exam-section--e6 .exam-situation-item__num {
+  color: var(--color-neon-magenta);
+  border-color: var(--color-neon-magenta);
+}
+
+.exam-situation-item strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.03em;
+  margin-bottom: var(--space-1);
+}
+
+.exam-situation-item p {
+  font-size: var(--fs-sm);
+  color: #e8f4fc;
+}
+
+/* ================================================================
+   13. SECTION CONTACT
+   ================================================================ */
+
+.contact-section {
+  position: relative;
+}
+
+/* Fond cyberpunk avec dégradé radial */
+.contact-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 60% at 50% 100%,
+    rgba(0, 245, 255, 0.04) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-12);
+}
+
+/* ---- Bloc informations de contact ---- */
+.contact-info-block {
+  font-style: normal;
+}
+
+.contact-info-block__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-8);
+  letter-spacing: 0.05em;
+}
+
+.contact-method {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  text-decoration: none;
+  color: inherit;
+  transition: color var(--transition-fast);
+}
+
+.contact-method:hover .contact-method__value {
+  color: var(--color-neon-cyan);
+}
+
+.contact-method__icon {
+  font-size: var(--fs-xl);
+  color: var(--color-neon-cyan);
+  text-shadow: var(--glow-text);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.contact-method__label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-1);
+}
+
+.contact-method__value {
+  display: block;
+  font-size: var(--fs-base);
+  color: #e8f4fc;
+  transition: color var(--transition-fast);
+}
+
+/* ---- Formulaire de contact ---- */
+.contact-form-wrapper {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8);
+}
+
+/* Le fieldset sert de conteneur sémantique, on supprime son style natif */
+.contact-form__fieldset {
+  border: none;
+  padding: 0;
+}
+
+.contact-form__legend {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-6);
+}
+
+.form-group {
+  margin-bottom: var(--space-5);
+}
+
+.form-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-2);
+}
+
+/* Inputs et textarea partagent la même apparence */
+.form-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text-primary);
+  font-family: var(--font-japanese);
+  font-size: var(--fs-base);
+  transition:
+    border-color var(--transition-base),
+    box-shadow var(--transition-base),
+    background var(--transition-base);
+  outline: none;
+}
+
+.form-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.form-input:focus {
+  border-color: var(--color-neon-cyan);
+  box-shadow: 0 0 0 3px rgba(0, 245, 255, 0.1), var(--glow-cyan);
+  background: rgba(0, 245, 255, 0.03);
+}
+
+/* Textarea spécifiquement */
+.form-input--textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.6;
+}
+
+/* ================================================================
+   14. FOOTER
+   ================================================================ */
+
+.site-footer {
+  background: var(--color-bg-secondary);
+  border-top: 1px solid var(--color-border);
+  padding: var(--space-12) 0;
+}
+
+.footer-container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.footer-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.footer-logo {
+  font-family: var(--font-display);
+  font-size: var(--fs-2xl);
+  font-weight: 900;
+}
+
+.footer-logo__bracket {
+  color: var(--color-neon-cyan);
+  text-shadow: var(--glow-text);
+}
+
+.footer-tagline {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+
+.footer-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-6);
+  width: 100%;
+}
+
+.footer-copy {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+}
+
+.footer-kanji {
+  font-family: var(--font-japanese);
+  font-size: var(--fs-xs);
+  color: rgba(0, 245, 255, 0.2);
+  letter-spacing: 0.3em;
+}
+
+/* ================================================================
+   15. RESPONSIVE — TABLETTES (≥ 640px)
+   ================================================================ */
+
+@media (min-width: 640px) {
+
+  /* Hero : layout côte à côte sur tablette */
+  .hero-section {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-16);
+    padding: var(--space-24) var(--space-8);
+  }
+
+  .hero-content {
+    text-align: left;
+  }
+
+  .hero-badge {
+    justify-content: flex-start;
+  }
+
+  .hero-actions {
+    justify-content: flex-start;
+  }
+
+  /* Grille projets : 2 colonnes */
+  .projects-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Grille veille : 2 colonnes */
+  .watch-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Contact : 2 colonnes */
+  .contact-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* À propos : 2 colonnes */
+  .about-grid {
+    grid-template-columns: auto 1fr;
+  }
+}
+
+/* ================================================================
+   16. RESPONSIVE — DESKTOP (≥ 1024px)
+   ================================================================ */
+
+@media (min-width: 1024px) {
+
+  /* Navigation : menu horizontal (plus de hamburger) */
+  .nav-toggle {
+    display: none;
+  }
+
+  .nav-menu {
+    /* Réinitialisation du menu mobile */
+    position: static;
+    flex-direction: row;
+    transform: none;
+    opacity: 1;
+    background: transparent;
+    backdrop-filter: none;
+    border-bottom: none;
+    padding: 0;
+    gap: var(--space-1);
+  }
+
+  .nav-link {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--fs-xs);
+  }
+
+  /* Ligne néon en dessous du lien actif sur desktop */
+  .nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: var(--space-3);
+    right: var(--space-3);
+    height: 1px;
+    background: var(--color-neon-cyan);
+    box-shadow: var(--glow-cyan);
+    transform: scaleX(0);
+    transition: transform var(--transition-base);
+  }
+
+  .nav-link:hover::before,
+  .nav-link--active::before {
+    transform: scaleX(1);
+  }
+
+  /* Sur desktop, le kanji hover s'affiche différemment */
+  .nav-link::after {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    top: 100%;
+    font-size: 10px;
+  }
+
+  /* Grille projets : 3 colonnes */
+  .projects-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Grille veille : 3 colonnes */
+  .watch-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Contact : plus d'espace pour le formulaire */
+  .contact-grid {
+    grid-template-columns: 1fr 1.5fr;
+    gap: var(--space-16);
+  }
+
+  /* Section header : titre plus grand */
+  .section-title {
+    font-size: var(--fs-4xl);
+  }
+}
+
+/* ================================================================
+   17. RESPONSIVE — GRAND DESKTOP (≥ 1280px)
+   ================================================================ */
+
+@media (min-width: 1280px) {
+
+  .hero-title {
+    font-size: 5.5rem;
+  }
+
+  .section {
+    padding: var(--space-24) 0;
+  }
+}
+
+/* ================================================================
+   18. NOUVELLES FONCTIONNALITÉS JS
+   ================================================================ */
+
+/* ---- Barre de progression de lecture ----
+   Créée dynamiquement par JS, positionnée en haut de page fixe */
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  /* Largeur pilotée par la custom property --reading-progress (mise à jour en JS) */
+  width: var(--reading-progress, 0%);
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--color-neon-cyan),
+    var(--color-neon-magenta)
+  );
+  box-shadow: 0 0 8px rgba(168, 204, 224, 0.5);
+  z-index: 2000; /* Au-dessus du header */
+  transition: width 0.1s linear;
+  /* Arrondi uniquement à droite car il part du bord gauche */
+  border-radius: 0 2px 2px 0;
+}
+
+/* ---- Canvas particules hero ---- */
+/* ---- Filtres du tableau de compétences ---- */
+.skills-filter-bar {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-6);
+  justify-content: center;
+}
+
+.filter-btn {
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 50px;
+  cursor: none;
+  transition:
+    color var(--transition-base),
+    border-color var(--transition-base),
+    background var(--transition-base),
+    box-shadow var(--transition-base);
+}
+
+.filter-btn:hover {
+  color: var(--color-neon-cyan);
+  border-color: var(--color-neon-cyan);
+}
+
+/* Bouton de filtre actif */
+.filter-btn--active {
+  color: var(--color-bg-primary);
+  background: var(--color-neon-cyan);
+  border-color: var(--color-neon-cyan);
+  box-shadow: var(--glow-cyan);
+}
+
+/* Ligne masquée par le filtre */
+.skills-row--hidden {
+  display: none;
+}
+
+/* ---- Validation formulaire de contact ---- */
+
+/* Champ en erreur */
+.form-input--error {
+  border-color: var(--color-neon-magenta) !important;
+  box-shadow: 0 0 0 3px rgba(255, 0, 110, 0.15) !important;
+}
+
+/* Champ valide */
+.form-input--valid {
+  border-color: #28c840;
+  box-shadow: 0 0 0 3px rgba(40, 200, 64, 0.1);
+}
+
+/* Message d'erreur sous le champ */
+.form-error-msg {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-neon-magenta);
+  margin-top: var(--space-2);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.form-error-msg::before {
+  content: '✗ ';
+}
+
+/* Bouton de soumission — états dynamiques */
+.btn--loading {
+  opacity: 0.7;
+  cursor: wait !important;
+}
+
+.btn--success {
+  background: #28c840 !important;
+  box-shadow: 0 0 15px rgba(40, 200, 64, 0.5) !important;
+  color: var(--color-bg-primary) !important;
+}
+
+.btn--error {
+  background: #e53e3e !important;
+  box-shadow: 0 0 15px rgba(229, 62, 62, 0.5) !important;
+  color: #fff !important;
+}
+
+/* ---- Easter egg Konami ---- */
+
+/* Toast de notification */
+.konami-toast {
+  position: fixed;
+  bottom: var(--space-8);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  background: rgba(5, 8, 16, 0.95);
+  border: 1px solid var(--color-neon-yellow);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-8);
+  font-family: var(--font-display);
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--color-neon-yellow);
+  text-shadow: 0 0 10px rgba(255, 234, 0, 0.8);
+  box-shadow: 0 0 30px rgba(255, 234, 0, 0.2);
+  white-space: nowrap;
+  /* Animation d'apparition et disparition */
+  animation: konami-appear 3s ease forwards;
+}
+
+.konami-toast span {
+  color: var(--color-neon-cyan);
+  font-family: var(--font-japanese);
+}
+
+@keyframes konami-appear {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  15%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  75%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+}
+
+/* Effet glitch global déclenché par le Konami */
+.konami-active {
+  animation: konami-glitch 0.3s ease infinite;
+}
+
+@keyframes konami-glitch {
+  0%   { filter: none; }
+  25%  { filter: hue-rotate(90deg) saturate(2); }
+  50%  { filter: hue-rotate(180deg) saturate(1.5) brightness(1.2); }
+  75%  { filter: hue-rotate(270deg) saturate(2); }
+  100% { filter: none; }
+}
+
+/* ================================================================
+   19. PRÉLOADER
+   ================================================================ */
+
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: var(--color-bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+/* Classe ajoutée par JS pour faire disparaître le préloader */
+.preloader--hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.preloader__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+/* Logo animé */
+.preloader__logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8vw, 5rem);
+  font-weight: 900;
+}
+
+.preloader__bracket {
+  color: var(--color-neon-cyan);
+  text-shadow: var(--glow-text);
+  animation: preloader-bracket-pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes preloader-bracket-pulse {
+  from { opacity: 0.4; }
+  to   { opacity: 1; text-shadow: 0 0 20px rgba(0, 245, 255, 1); }
+}
+
+.preloader__letters {
+  display: flex;
+  gap: 4px;
+}
+
+/* Chaque lettre apparaît avec un délai via --i (index injecté en style inline) */
+.preloader__letter {
+  display: inline-block;
+  color: var(--color-text-primary);
+  opacity: 0;
+  transform: translateY(-20px);
+  animation: preloader-letter-drop 0.5s ease forwards;
+  animation-delay: calc(var(--i) * 0.15s);
+}
+
+@keyframes preloader-letter-drop {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Barre de progression */
+.preloader__bar-wrapper {
+  width: 200px;
+  height: 2px;
+  background: rgba(0, 245, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.preloader__bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--color-neon-cyan), var(--color-neon-magenta));
+  border-radius: 2px;
+  box-shadow: var(--glow-cyan);
+  transition: width 0.3s ease;
+}
+
+.preloader__status {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+  letter-spacing: 0.1em;
+  min-height: 1.2em; /* Évite le saut de layout quand le texte change */
+}
+
+.preloader__kanji {
+  font-family: var(--font-japanese);
+  font-size: var(--fs-sm);
+  color: rgba(0, 245, 255, 0.15);
+  letter-spacing: 0.4em;
+}
+
+/* ================================================================
+   20. BOUTON CV TÉLÉCHARGEABLE
+   ================================================================ */
+
+.btn--cv {
+  background: transparent;
+  color: var(--color-neon-yellow);
+  border: 1px solid var(--color-neon-yellow);
+  box-shadow: 0 0 10px rgba(255, 234, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Effet de remplissage au survol */
+.btn--cv::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-neon-yellow);
+  transform: translateX(-100%);
+  transition: transform var(--transition-base);
+  z-index: -1;
+}
+
+.btn--cv:hover {
+  color: var(--color-bg-primary);
+  box-shadow: 0 0 20px rgba(255, 234, 0, 0.4);
+}
+
+.btn--cv:hover::before {
+  transform: translateX(0);
+}
+
+/* ================================================================
+   21. CORRECTION BUG — CURSEUR CUSTOM
+   Le curseur ne doit pas interférer avec les éléments de texte.
+   On désactive pointer-events partout sur les éléments déco */
+
+/* ================================================================
+   22. TERMINAL TYPEWRITER — STYLES POUR LES LIGNES INJECTÉES EN JS
+   ================================================================ */
+
+/* Le terminal body doit avoir une hauteur min pour ne pas "sauter"
+   pendant que les lignes sont injectées */
+.terminal-body {
+  min-height: 180px;
+  padding: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+}
+
+/* Ligne de commande (avec le $) */
+.terminal-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-1);
+  white-space: pre;
+}
+
+.terminal-prompt {
+  color: var(--color-neon-cyan);
+  font-weight: 700;
+  text-shadow: var(--glow-text);
+  flex-shrink: 0;
+}
+
+.terminal-output {
+  color: #e8f4fc;
+  padding-left: var(--space-4);
+  margin-bottom: var(--space-2);
+  white-space: pre;
+}
+
+.terminal-output--success { color: var(--terminal-success-color, #28c840); }
+
+/* Curseur clignotant */
+.terminal-cursor {
+  color: var(--color-neon-cyan);
+  animation: cursor-blink 1s step-end infinite;
+  display: inline-block;
+}
+
+/* ================================================================
+   24. TILT 3D SUR LES CARTES PROJETS
+   La transformation CSS est appliquée via JS (variables inline)
+   On définit ici la transition et la perspective
+   ================================================================ */
+
+/* La perspective doit être sur le parent pour que l'effet 3D fonctionne */
+.projects-grid {
+  perspective: 1200px;
+}
+
+.project-card {
+  /* Activation du rendu 3D sur la carte */
+  transform-style: preserve-3d;
+  /* Les variables --tilt-x et --tilt-y sont injectées par JS au mousemove */
+  transform:
+    perspective(800px)
+    rotateX(var(--tilt-x, 0deg))
+    rotateY(var(--tilt-y, 0deg))
+    translateZ(var(--tilt-z, 0px));
+  transition:
+    transform 0.15s ease,
+    border-color var(--transition-base),
+    box-shadow var(--transition-base);
+  will-change: transform;
+}
+
+/* Quand la souris quitte la carte, retour fluide à 0 */
+.project-card:not(:hover) {
+  transition:
+    transform 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+    border-color var(--transition-base),
+    box-shadow var(--transition-base);
+}
+
+/* Reflet brillant qui suit le curseur sur la carte (injecté via JS background) */
+.project-card__shine {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  /* Le background radial est mis à jour en JS selon la position de la souris */
+  background: radial-gradient(
+    circle at var(--shine-x, 50%) var(--shine-y, 50%),
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 60%
+  );
+}
+
+.project-card:hover .project-card__shine {
+  opacity: 1;
+}
+
+/* ================================================================
+   MODE JOUR — Light mode exhaustif
+   ================================================================ */
+/* 1. Variables globales */
+html.mode-jour {
+  --color-neon-cyan:        #2563eb;
+  --color-neon-magenta:     #8b9e6e;
+  --color-neon-yellow:      #d97706;
+  --color-neon-purple:      #7c3aed;
+  --color-text-primary:     #111;
+  --color-text-secondary:   #222;
+  --color-text-muted:       #555;
+  --color-border:           rgba(37, 99, 235, 0.15);
+  --color-border-strong:    rgba(37, 99, 235, 0.35);
+  --color-bg-primary:       #f8fafc;
+  --color-bg-secondary:     #f1f5f9;
+  --color-bg-card:          #ffffff;
+  --color-bg-card-hover:    #f0f4ff;
+  --glow-cyan:    0 2px 12px rgba(37,99,235,0.12);
+  --glow-magenta: 0 2px 12px rgba(220,20,20,0.12);
+  --glow-text:    none;
+  background-color: #f8fafc;
+  color: #1e293b;
+}
+/* Grille très discrète */
+html.mode-jour .bg-grid {
+  background-image:
+    linear-gradient(rgba(37, 99, 235, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.04) 1px, transparent 1px);
+}
+
+/* ---- Header et nav ---- */
+html.mode-jour .site-header,
+html.mode-jour .site-header--scrolled {
+  background: #fffdf8 !important;
+  border-bottom: 2.5px solid #111 !important;
+  box-shadow: 0 4px 0px #111 !important;
+}
+/* Menu mobile */
+html.mode-jour .nav-menu {
+  background: rgba(248, 250, 252, 0.98) !important;
+  border-bottom-color: rgba(37, 99, 235, 0.1) !important;
+}
+
+html.mode-jour .nav-link {
+  color: #111;
+  background: #ffffff;
+  border: 2.5px solid #111;
+  box-shadow: 5px 5px 0px #111;
+  padding: 6px 14px;
+  transition: box-shadow 0.12s ease, transform 0.12s ease;
+}
+
+html.mode-jour .nav-link:hover {
+  color: #111;
+  box-shadow: 3px 3px 0px #111;
+  transform: translate(2px, 2px);
+  background: #f5f5f5;
+}
+
+html.mode-jour .nav-link:active {
+  box-shadow: 1px 1px 0px #111;
+  transform: translate(4px, 4px);
+}
+
+html.mode-jour .nav-link--active {
+  color: #dc1414;
+  border-color: #dc1414;
+  box-shadow: 5px 5px 0px #dc1414;
+}
+/* ---- Hero ---- */
+html.mode-jour .hero-section {
+  background-color: #f8fafc;
+}
+
+html.mode-jour .hero-subtitle {
+  color: #64748b;
+}
+
+html.mode-jour .hero-description {
+  color: #222;
+}
+/* Terminal hero — style manga */
+html.mode-jour .hero-terminal {
+  background: #fffdf8 !important;
+  border: 2.5px solid #111 !important;
+  box-shadow: 5px 5px 0px #111 !important;
+  border-radius: var(--radius-lg) !important;
+}
+
+html.mode-jour .terminal-header {
+  background: #f1f5f9 !important;
+  border-bottom-color: rgba(37, 99, 235, 0.1) !important;
+}
+
+html.mode-jour .terminal-title {
+  color: #94a3b8;
+}
+
+html.mode-jour .terminal-prompt,
+html.mode-jour .terminal-line {
+  color: #111;
+}
+
+html.mode-jour .terminal-prompt-symbol {
+  color: #2563eb;
+}
+
+/* ---- Sections générales ---- */
+html.mode-jour .section,
+html.mode-jour .about-section,
+html.mode-jour .skills-section,
+html.mode-jour .projects-section,
+html.mode-jour .watch-section,
+html.mode-jour .exam-section,
+html.mode-jour .contact-section,
+html.mode-jour .certs-section {
+  background-color: #fffdf8;
+}
+/* Titres de sections */
+html.mode-jour .section-title {
+  color: #1e293b !important;
+  text-shadow: none !important;
+}
+
+html.mode-jour .section-label {
+  color: #dc1414;
+  font-weight: 900;
+}
+
+html.mode-jour .section-divider {
+  background: #dc1414;
+  box-shadow: none;
+}
+/* ---- Cartes et contenus ---- */
+html.mode-jour .project-card,
+html.mode-jour .watch-card,
+html.mode-jour .exam-info-card,
+html.mode-jour .cert-inline-card,
+html.mode-jour .contact-form-wrapper,
+html.mode-jour .timeline-item__content,
+html.mode-jour .table-wrapper,
+html.mode-jour .cert-card {
+  background: #fffdf8 !important;
+  border: 2.5px solid #111 !important;
+  box-shadow: 5px 5px 0px #111 !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+/* Hover manga sur cartes certifications et E5 */
+html.mode-jour .exam-info-card:hover,
+html.mode-jour .cert-inline-card:hover,
+html.mode-jour .cert-card:hover {
+  transform: translate(-3px, -3px) !important;
+  box-shadow: 8px 8px 0px #111 !important;
+}
+/* Textes dans les cartes */
+html.mode-jour .project-card h3,
+html.mode-jour .watch-card h3,
+html.mode-jour .exam-info-card h3,
+html.mode-jour .timeline-item__title {
+  color: #1e293b;
+}
+
+html.mode-jour .project-card p,
+html.mode-jour .watch-card p {
+  color: #222;
+}
+/* Tags */
+html.mode-jour .project-tag,
+/* Tableau compétences */
+html.mode-jour .skills-table thead th {
+  background: #f5f0e8;
+  color: #111;
+  border: 1.5px solid #111;
+  font-weight: 700;
+}
+html.mode-jour .skills-table tbody td {
+  color: #1a1a1a;
+  border: 1px solid rgba(0,0,0,0.15);
+}
+html.mode-jour .skills-table__group-row td,
+html.mode-jour .skills-table__domain {
+  background: #f5f0e8;
+  color: #111;
+  font-weight: 700;
+}
+/* Barre de progression */
+html.mode-jour .progress-bar {
+  background: rgba(37, 99, 235, 0.1);
+}
+
+/* ---- Skill cards ---- */
+html.mode-jour .skill-card {
+  background: #fffdf8;
+  border: 2.5px solid #111;
+  box-shadow: 5px 5px 0px #111;
+  border-radius: var(--radius-md);
+  transition: box-shadow 0.12s ease, transform 0.12s ease;
+}
+html.mode-jour .skill-card:hover {
+  box-shadow: 3px 3px 0px #111;
+  transform: translate(2px, 2px);
+}
+html.mode-jour .skill-card__header {
+  border-color: rgba(0,0,0,.15);
+}
+html.mode-jour .skill-card__bar {
+  background: rgba(0,0,0,.08);
+}
+html.mode-jour .skill-card__name   { color: #111; }
+html.mode-jour .skill-card__domain { color: #111; }
+html.mode-jour .skill-card--system   .skill-card__icon   { background: rgba(220,20,20,.1); color: #dc1414; }
+html.mode-jour .skill-card--network  .skill-card__icon   { background: #f0f0f0; color: #111; }
+html.mode-jour .skill-card--security .skill-card__icon   { background: rgba(220,20,20,.1); color: #dc1414; }
+html.mode-jour .skill-card--dev      .skill-card__icon   { background: #f0f0f0; color: #111; }
+
+html.mode-jour .skill-card--system   .skill-card__bar-fill { background: #dc1414; }
+html.mode-jour .skill-card--network  .skill-card__bar-fill { background: #111; }
+html.mode-jour .skill-card--security .skill-card__bar-fill { background: #dc1414; }
+html.mode-jour .skill-card--dev      .skill-card__bar-fill { background: #111; }
+
+/* ---- Boutons ---- */
+
+/* ---- Contact ---- */
+html.mode-jour .contact-form-wrapper input,
+html.mode-jour .contact-form-wrapper textarea,
+html.mode-jour .contact-form-wrapper select {
+  background: #fffdf8 !important;
+  color: #1e293b !important;
+  border: 1.5px solid #111 !important;
+  box-shadow: 2px 2px 0px #111 !important;
+}
+html.mode-jour .contact-form-wrapper input:focus,
+html.mode-jour .contact-form-wrapper textarea:focus {
+  border: 2px solid #111 !important;
+  box-shadow: 3px 3px 0px #111 !important;
+  outline: none !important;
+}
+/* Bouton submit manga */
+html.mode-jour .contact-form-wrapper .btn--primary {
+  background: #111 !important;
+  color: #fffdf8 !important;
+  border: 2px solid #111 !important;
+  box-shadow: 3px 3px 0px #555 !important;
+  font-weight: 900 !important;
+}
+html.mode-jour .contact-form-wrapper .btn--primary:hover {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 5px 5px 0px #555 !important;
+  background: #dc1414 !important;
+  border-color: #dc1414 !important;
+}
+/* ---- Footer ---- */
+html.mode-jour .site-footer {
+  background: #fffdf8 !important;
+  border-top: 2.5px solid #111 !important;
+}
+
+html.mode-jour .site-footer p,
+html.mode-jour .site-footer span {
+  color: #64748b;
+}
+/* ---- Reading progress ---- */
+html.mode-jour .reading-progress {
+  background: linear-gradient(90deg, #dc1414, #ff4444);
+  box-shadow: 0 0 6px rgba(220,20,20,0.4);
+}
+/* ---- Timeline dots ---- */
+html.mode-jour .timeline-item__dot {
+  background: #111;
+  border-color: #111;
+}
+
+html.mode-jour .timeline-item__dot--active {
+  background: #dc1414;
+  border-color: #dc1414;
+  box-shadow: 0 0 0 4px rgba(220, 20, 20, 0.15);
+}
+
+html.mode-jour .timeline-item__dot--future {
+  background: transparent;
+  border-color: #dc1414;
+}
+
+html.mode-jour .timeline-item__line {
+  background: #111;
+}
+/* ---- About section ---- */
+html.mode-jour .about-section { background: #f1f5f9; }
+
+/* Encadré carte autour du contenu À Propos — style cohérent mode jour */
+html.mode-jour .about-grid {
+  background: #fffdf8;
+  border: 2.5px solid #111;
+  box-shadow: 6px 6px 0px #111;
+  border-radius: 12px;
+  padding: 2rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+html.mode-jour .about-grid:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0px #111;
+}
+
+html.mode-jour .about-text p,
+html.mode-jour .about-description { color: #111; }
+
+html.mode-jour .about-id-badge {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+html.mode-jour .about-id-badge__name { color: #1e293b; }
+
+html.mode-jour .about-id-badge__status { color: #64748b; }
+
+html.mode-jour .about-stats { border-color: rgba(37,99,235,0.1); }
+
+html.mode-jour .stat-item__value { color: #111; text-shadow: none; }
+
+html.mode-jour .stat-item__label { color: #64748b; }
+
+html.mode-jour .about-contact-info a,
+html.mode-jour .about-links a { color: #111; }
+
+/* Anneau 1 : rouge vif, anneau 2 : noir */
+html.mode-jour .avatar-ring--1 {
+  border-color: #111;
+  border-width: 3px;
+  box-shadow: none;
+}
+html.mode-jour .avatar-ring--2 {
+  border-color: #dc1414;
+  border-width: 3px;
+  box-shadow: 0 0 12px rgba(220,20,20,0.5);
+}
+
+/* Séparateurs dans la carte À Propos plus visibles */
+html.mode-jour .about-stats {
+  border-top: 2px solid rgba(0,0,0,0.2);
+  border-bottom: 2px solid rgba(0,0,0,0.2);
+}
+
+html.mode-jour .about-links {
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+}html.mode-jour .avatar-initials { color: #111; border-color: #dc1414; background: linear-gradient(135deg, #fff, #f5f0e8); }
+/* ---- Skills section ---- */
+html.mode-jour .skills-section { background: #f8fafc; }
+
+html.mode-jour .table-wrapper {
+  background: #ffffff !important;
+  border-color: rgba(37,99,235,0.1) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05) !important;
+}
+
+html.mode-jour .skills-table { color: #111; }
+
+html.mode-jour .skills-table tbody tr td {
+  color: #111 !important;
+  border-color: rgba(37,99,235,0.06) !important;
+  background: transparent;
+}
+
+html.mode-jour .skills-table__group-row td {
+  background: #f8fafc !important;
+  color: #222 !important;
+}
+
+html.mode-jour .level-badge {
+  background: rgba(37,99,235,0.08);
+  color: #111;
+  border-color: rgba(37,99,235,0.2);
+}
+
+html.mode-jour .progress-bar__fill {
+  background: #2563eb;
+  box-shadow: none;
+}
+
+html.mode-jour .progress-bar__label { color: #64748b; }
+
+html.mode-jour .skills-legend { color: #64748b; }
+
+html.mode-jour .skills-legend__sep { color: rgba(37,99,235,0.2); }
+/* ---- Projects section ---- */
+html.mode-jour .projects-section { background: #f1f5f9; }
+
+html.mode-jour .project-card__title { color: #1e293b; text-shadow: none; }
+html.mode-jour .project-card__description { color: #222; }
+html.mode-jour .project-card__glow { opacity: 0; }
+
+html.mode-jour .project-link { color: #111; }
+/* ---- Watch section ---- */
+html.mode-jour .watch-section { background: #f8fafc; }
+
+html.mode-jour .watch-card__title { color: #1e293b; text-shadow: none; }
+html.mode-jour .watch-card__description { color: #222; }
+html.mode-jour .watch-card__topic { color: #dc1414; }
+html.mode-jour .watch-card__icon { color: #dc1414; text-shadow: none; }
+
+html.mode-jour .watch-intro p { color: #222; }
+
+html.mode-jour .watch-news-item__date { color: #dc1414; }
+
+html.mode-jour .watch-news-item__text { color: #111; }
+/* ---- Exam section ---- */
+html.mode-jour .exam-section { background: #f1f5f9; }
+
+html.mode-jour .exam-info-card {
+  background: #ffffff !important;
+  border-color: rgba(37,99,235,0.12) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06) !important;
+}
+
+html.mode-jour .exam-info-card__subtitle { color: #64748b; }
+
+html.mode-jour .exam-info-card__header h3 { color: #1e293b; }
+
+html.mode-jour .exam-badge { background: rgba(220,20,20,0.08); color: #dc1414; border-color: rgba(220,20,20,0.3); }
+
+html.mode-jour .exam-situations__title { color: #111; }
+
+html.mode-jour .exam-situation-item { color: #222; border-color: rgba(37,99,235,0.1); }
+
+html.mode-jour .exam-situation-item__num { color: #dc1414; border-color: #dc1414; font-weight: 900; }
+
+html.mode-jour .exam-situation-item strong { color: #1e293b; }
+
+html.mode-jour .exam-situation-item p { color: #222; }
+
+html.mode-jour .exam-synthesis-table td,
+html.mode-jour .exam-synthesis-table th {
+  color: #111 !important;
+  border-color: rgba(37,99,235,0.08) !important;
+  background: transparent !important;
+}
+
+html.mode-jour .exam-synthesis-table thead th {
+  background: #f1f5f9 !important;
+}
+/* ---- Certs section ---- */
+html.mode-jour .certs-section { background: #f8fafc; }
+
+html.mode-jour .cert-inline-card {
+  background: #fffdf8 !important;
+  border: 2.5px solid #111 !important;
+  box-shadow: 5px 5px 0px #111 !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+html.mode-jour .cert-inline-card:hover {
+  transform: translate(-3px, -3px) !important;
+  box-shadow: 8px 8px 0px #111 !important;
+}
+
+html.mode-jour .cert-inline-card__name { color: #1e293b; }
+
+html.mode-jour .cert-inline-card__detail { color: #64748b; }
+
+html.mode-jour .certs-inline__title { color: #111; }
+/* ---- Contact section ---- */
+html.mode-jour .contact-section { background: #f1f5f9; }
+
+html.mode-jour .contact-form-wrapper {
+  background: #fffdf8 !important;
+  border: 2.5px solid #111 !important;
+  box-shadow: 5px 5px 0px #111 !important;
+}
+
+html.mode-jour .form-input {
+  background: #fffdf8 !important;
+  color: #1e293b !important;
+  border: 1.5px solid #111 !important;
+  box-shadow: 2px 2px 0px #111 !important;
+}
+html.mode-jour .form-input:focus {
+  border: 2px solid #111 !important;
+  box-shadow: 3px 3px 0px #111 !important;
+  outline: none !important;
+}
+
+html.mode-jour .form-input::placeholder { color: #94a3b8; }
+
+html.mode-jour .form-label { color: #111; }
+
+html.mode-jour .contact-info-block { color: #222; }
+
+html.mode-jour .contact-info-block__title { color: #1e293b; }
+
+html.mode-jour .contact-method__label { color: #64748b; }
+
+html.mode-jour .contact-method__value { color: #111; }
+
+html.mode-jour .contact-method:hover .contact-method__value { color: #dc1414; }
+
+html.mode-jour .contact-method__icon { color: #dc1414; }
+/* ---- Boutons ---- */
+
+/* ---- Scroll indicator ---- */
+html.mode-jour .scroll-indicator__text { color: #94a3b8; }
+
+html.mode-jour .scroll-indicator__arrow { border-color: #94a3b8; }
+/* ---- Kanji flottants ---- */
+
+/* ---- Preloader (déjà fini avant toggle, mais au cas où) ---- */
+html.mode-jour .preloader { background: #f8fafc; }
+html.mode-jour .preloader__bracket { color: #dc1414 !important; text-shadow: none !important; animation: none !important; }
+html.mode-jour .preloader__letter { color: #111 !important; }
+html.mode-jour .preloader__bar-wrapper { background: rgba(220,20,20,0.12) !important; }
+html.mode-jour .preloader__bar { background: linear-gradient(90deg, #dc1414, #ff4444) !important; box-shadow: none !important; }
+html.mode-jour .preloader__status { color: #64748b !important; }
+html.mode-jour .preloader__kanji { color: rgba(17,17,17,0.15) !important; }
+/* ================================================================
+   MODE JOUR — CORRECTIFS LISIBILITÉ
+   Textes qui héritent de couleurs blanches/transparentes du thème nuit
+   ================================================================
+
+   PROBLÈME PRINCIPAL : la couleur #c8dff0 (bleu très clair, lisible
+   sur fond noir) est utilisée dans 10 classes sans override jour.
+   Sur fond blanc elle est quasi-invisible.
+   ================================================================ *//* --- Tous les éléments utilisant #c8dff0 --- */
+html.mode-jour .about-text                 { color: #111 !important; }
+
+html.mode-jour .skills-table td            { color: #111 !important; }
+
+html.mode-jour .exam-info-card__description{ color: #222 !important; }
+
+html.mode-jour .timeline-item__description { color: #222 !important; }
+
+html.mode-jour .cert-card__description     { color: #222 !important; }
+/* --- Timeline : dates, école, badges, icônes --- */
+html.mode-jour .timeline-item__date        { color: #111 !important; }
+
+html.mode-jour .timeline-item__school      { color: #dc1414 !important; }
+
+html.mode-jour .timeline-item__school-icon { color: #111 !important; }
+
+html.mode-jour .timeline-item__badge       { background: #dc1414 !important; color: #fff !important; box-shadow: none !important; }
+
+html.mode-jour .timeline-tag--highlight    { color: #111 !important; border-color: rgba(0,0,0,0.2) !important; }
+/* --- Exam section --- *//* --- About text paragraphs --- */
+html.mode-jour .about-text p               { color: #111 !important; }
+/* --- Skills table --- *//* Tableau de synthèse E5 */
+html.mode-jour .synthesis-table thead th {
+  background: #e2e8f0 !important;
+  color: #1e293b !important;
+  border-color: rgba(37,99,235,0.15) !important;
+}
+
+html.mode-jour .synthesis-table tbody td {
+  color: #111 !important;
+  border-color: rgba(37,99,235,0.08) !important;
+  background: #ffffff !important;
+}
+
+html.mode-jour .synth-section-row td {
+  background: #f1f5f9 !important;
+  color: #222 !important;
+}
+
+html.mode-jour .synth-realisation strong {
+  color: #1e293b !important;
+}
+
+html.mode-jour .synth-docs {
+  color: #64748b !important;
+}
+
+html.mode-jour .synth-periode {
+  color: #64748b !important;
+}
+
+html.mode-jour .synth-subhead {
+  color: #64748b !important;
+}
+
+html.mode-jour .synth-check--no {
+  color: #cbd5e1 !important;
+}
+
+html.mode-jour .synthesis-table-wrapper {
+  border-color: rgba(37,99,235,0.12) !important;
+  background: #ffffff;
+}
+
+html.mode-jour .synthesis-table {
+  background: #ffffff;
+  color: #111;
+}
+/* About timeline intégrée */
+html.mode-jour .about-timeline-wrapper {
+  border-top-color: rgba(37,99,235,0.15);
+}
+
+html.mode-jour .about-timeline-title {
+  color: #111;
+}
+
+html.mode-jour .cert-inline-card__logo--cisco   { background: rgba(37,99,235,0.08); color: #2563eb; border-color: rgba(37,99,235,0.2); }
+
+html.mode-jour .cert-inline-card__logo--ccna    { background: rgba(124,58,237,0.08); color: #7c3aed; border-color: rgba(124,58,237,0.2); }
+
+html.mode-jour .cert-inline-card__logo--comptia { background: rgba(220,20,20,0.08); color: #dc1414; border-color: rgba(220,20,20,0.2); }
+/* Cert status badge */
+html.mode-jour .cert-status { background: rgba(37,99,235,0.08); color: #2563eb; border-color: rgba(37,99,235,0.2); }
+/* Nav logo kanji */
+html.mode-jour .nav-logo__kanji { color: #94a3b8; }
+
+html.mode-jour .nav-logo__bracket { color: #dc1414; text-shadow: none; }
+
+html.mode-jour .nav-logo__name { color: #1e293b; }
+/* Hero role / typewriter */
+html.mode-jour .hero-role,
+html.mode-jour .typewriter { color: #dc1414 !important; text-shadow: none !important; border-right-color: #dc1414 !important; }
+/* Liens généraux en mode jour */
+html.mode-jour a { color: #2563eb; }
+
+html.mode-jour a:hover { color: #1d4ed8; }
+/* Texte body général */
+html.mode-jour body { color: #1e293b; }
+/* Éléments avec opacity hérités du thème nuit */
+html.mode-jour .cert-inline-card--planned { opacity: 0.85; }
+/* Skill filter buttons */
+html.mode-jour .filter-btn {
+  color: #111 !important;
+  border-color: rgba(37,99,235,0.2) !important;
+  background: #ffffff !important;
+}
+
+html.mode-jour .filter-btn--active,
+html.mode-jour .filter-btn:hover {
+  color: #fff !important;
+  border-color: #dc1414 !important;
+  background: #dc1414 !important;
+  box-shadow: 3px 3px 0 #8b0000 !important;
+}
+/* Scroll indicator */
+html.mode-jour .scroll-indicator { color: #94a3b8; }
+/* Hero terminal text */
+html.mode-jour .terminal-body { background: #ffffff; }
+
+html.mode-jour .terminal-output { color: #111 !important; }
+
+html.mode-jour .terminal-success { color: #16a34a !important; }
+
+html.mode-jour .terminal-info { color: #2563eb !important; }
+
+html.mode-jour .terminal-warn { color: #d97706 !important; }
+
+html.mode-jour .terminal-error { color: #dc2626 !important; }
+
+/* Scrollbar rouge shonen */
+html.mode-jour ::-webkit-scrollbar-thumb { background: #dc1414 !important; }
+html.mode-jour ::-webkit-scrollbar-track { background: #f5f5f0 !important; }
+
+.matrix-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 1px solid var(--color-neon-cyan);
+  box-shadow: var(--glow-cyan);
+  border-radius: var(--radius-sm);
+  cursor: none;
+  padding: 0;
+  flex-shrink: 0;
+  font-size: 16px;
+  color: var(--color-neon-cyan);
+  transition: all var(--transition-base);
+}
+
+.matrix-toggle:hover {
+  background: rgba(0, 245, 255, 0.1);
+}
+
+.matrix-toggle__icon {
+  line-height: 1;
+  display: block;
+}
+
+/* Mode jour : style shonen bordure noire + rouge */
+html.mode-jour .matrix-toggle {
+  background: #ffffff;
+  border: 2.5px solid #111;
+  box-shadow: 4px 4px 0px #dc1414;
+  color: #111;
+}
+
+html.mode-jour .matrix-toggle:hover {
+  box-shadow: 2px 2px 0px #dc1414;
+  transform: translate(2px, 2px);
+}
+
+/* ================================================================
+   MODE JOUR — Overrides lisibilité complets
+   ================================================================ */
+
+/* -- Navigation -- */
+html.mode-jour .nav-link--cta          { color: #dc1414 !important; }
+html.mode-jour .nav-link--secondary    { color: #64748b; }
+html.mode-jour .nav-toggle__bar        { background: #2563eb; }
+
+/* -- Hero -- */
+html.mode-jour .hero-badge__dot        { background: #2563eb; }
+
+/* -- About -- */
+html.mode-jour .contact-inline         { color: #111; }
+html.mode-jour .contact-inline__icon   { color: #dc1414; }
+
+/* -- Skills table -- */
+html.mode-jour .skills-table__domain--network  { color: #111; }
+html.mode-jour .skills-table__domain--system   { color: #dc1414; }
+html.mode-jour .skills-table__domain--security { color: #dc1414; }
+html.mode-jour .skills-table__domain--dev      { color: #111; }
+html.mode-jour .level-badge--beginner     { color: #111; background: rgba(17,17,17,0.06); border-color: rgba(17,17,17,0.3); }
+html.mode-jour .level-badge--intermediate { color: #dc1414; background: rgba(220,20,20,0.08); border-color: rgba(220,20,20,0.3); }
+html.mode-jour .level-badge--advanced     { color: #dc1414; background: rgba(220,20,20,0.08); border-color: rgba(220,20,20,0.3); }
+
+/* -- Projects -- */
+html.mode-jour .project-tech-list li  { color: #111; }
+
+/* -- Watch -- */
+html.mode-jour .watch-sources-list a  { color: #111; }
+html.mode-jour .watch-sources-list a:hover { color: #dc1414; }
+
+html.mode-jour .watch-sources-list li::before { color: #dc1414; }
+
+/* -- Exam -- */
+html.mode-jour .exam-badge--e5        { color: #dc1414; border-color: rgba(220,20,20,0.4); background: rgba(220,20,20,0.06); }
+html.mode-jour .exam-badge--e6        { color: #dc1414; border-color: rgba(220,20,20,0.4); background: rgba(220,20,20,0.06); }
+html.mode-jour .exam-section--e6 .exam-situation-item__num { color: #dc1414; border-color: rgba(220,20,20,0.4); }
+
+/* -- Certifications -- */
+html.mode-jour .cert-card             { background: #ffffff; border-color: rgba(37,99,235,0.15); }
+html.mode-jour .cert-card__title      { color: #1e293b; }
+html.mode-jour .cert-card__issuer     { color: #64748b; }
+html.mode-jour .cert-card__year       { color: #64748b; }
+html.mode-jour .cert-card__link       { color: #2563eb; }
+html.mode-jour .cert-card__logo--cisco   { color: #2563eb; background: rgba(37,99,235,0.06); border-color: rgba(37,99,235,0.2); }
+html.mode-jour .cert-card__logo--comptia { color: #dc1414; background: rgba(220,20,20,0.06); border-color: rgba(220,20,20,0.2); }
+html.mode-jour .cert-card__logo--ccna    { color: #7c3aed; background: rgba(124,58,237,0.06); border-color: rgba(124,58,237,0.2); }
+html.mode-jour .cert-status--progress { color: #2563eb; background: rgba(37,99,235,0.06); border-color: rgba(37,99,235,0.2); }
+html.mode-jour .cert-status--planned  { color: #7c3aed; background: rgba(124,58,237,0.06); border-color: rgba(124,58,237,0.2); }
+
+/* -- Contact form -- */
+html.mode-jour .contact-form__legend  { color: #1e293b; }
+html.mode-jour .form-error-msg        { color: #dc1414; }
+
+
+/* -- Footer -- */
+html.mode-jour .footer-github         { color: #2563eb; }
+
+/* Liens nav secondaires (Parcours, Certs) — plus discrets */
+.nav-link--secondary {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.nav-link--secondary:hover {
+  opacity: 1;
+  color: var(--color-neon-cyan);
+}
+
+/* Lien GitHub nav */
+.nav-link--github {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.nav-link--github:hover {
+  border-color: var(--color-neon-cyan);
+}
+
+/* Mode jour : GH — fond noir, texte blanc */
+html.mode-jour .nav-link--github {
+  background: #111 !important;
+  color: #ffffff !important;
+  border: 2.5px solid #111 !important;
+  box-shadow: 5px 5px 0px #444 !important;
+}
+
+html.mode-jour .nav-link--github:hover {
+  background: #333 !important;
+  color: #ffffff !important;
+  box-shadow: 3px 3px 0px #444 !important;
+  transform: translate(2px, 2px);
+}
+
+/* Lien GitHub footer */
+.footer-github {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--color-neon-cyan);
+  text-decoration: none;
+  margin-top: var(--space-2);
+  display: inline-block;
+  transition: color var(--transition-fast), text-shadow var(--transition-fast);
+}
+
+.footer-github:hover { color: #fff; text-shadow: var(--glow-text); }
+
+/* ================================================================
+   26. TIMELINE — PARCOURS
+   ================================================================ */
+
+.timeline-section {
+  background: var(--color-bg-secondary);
+  position: relative;
+}
+
+/* Liste ordonnée sans style natif */
+.timeline {
+  list-style: none;
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: var(--space-6);
+  margin-bottom: var(--space-12);
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.timeline-item.is-revealed {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Délai en cascade pour chaque item */
+.timeline-item:nth-child(1) { transition-delay: 0s; }
+.timeline-item:nth-child(2) { transition-delay: 0.15s; }
+.timeline-item:nth-child(3) { transition-delay: 0.3s; }
+
+/* ---- Marqueur (point + ligne verticale) ---- */
+.timeline-item__marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 4px;
+}
+
+.timeline-item__dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+  border: 2px solid var(--color-bg-secondary);
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+/* Point de l'étape en cours : néon animé */
+.timeline-item__dot--active {
+  background: var(--color-neon-cyan);
+  box-shadow: var(--glow-cyan);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* Point futur : creux */
+.timeline-item__dot--future {
+  background: transparent;
+  border: 2px solid var(--color-text-muted);
+}
+
+/* Ligne verticale reliant les étapes */
+.timeline-item__line {
+  flex: 1;
+  width: 2px;
+  background: linear-gradient(
+    180deg,
+    var(--color-neon-cyan),
+    rgba(0, 245, 255, 0.1)
+  );
+  margin-top: var(--space-2);
+}
+
+/* Pas de ligne sur le dernier item */
+.timeline-item:last-child .timeline-item__line {
+  display: none;
+}
+
+/* ---- Contenu de l'étape ---- */
+.timeline-item__content {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  position: relative;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.timeline-item--current .timeline-item__content {
+  border-color: rgba(0, 245, 255, 0.3);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.05);
+}
+
+.timeline-item__date {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-neon-cyan);
+  letter-spacing: 0.1em;
+  margin-bottom: var(--space-2);
+}
+
+.timeline-item__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.03em;
+  margin-bottom: var(--space-2);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+/* Badge "En cours" sur l'item actuel */
+.timeline-item__badge {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-bg-primary);
+  background: var(--color-neon-cyan);
+  padding: 2px var(--space-2);
+  border-radius: 50px;
+  font-weight: 400;
+  box-shadow: var(--glow-cyan);
+}
+
+.timeline-item__school {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--color-neon-magenta);
+  margin-bottom: var(--space-3);
+}
+
+.timeline-item__school-icon { color: var(--color-neon-cyan); }
+
+.timeline-item__description {
+  font-size: var(--fs-sm);
+  color: #e8f4fc;
+  line-height: 1.7;
+  margin-bottom: var(--space-4);
+}
+
+.timeline-item__tags {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.timeline-tag {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+}
+
+.timeline-tag--highlight {
+  color: var(--color-neon-cyan);
+  border-color: rgba(0, 245, 255, 0.3);
+}
+
+/* ================================================================
+   27. CERTIFICATIONS
+   ================================================================ */
+
+.certs-section { background: var(--color-bg-primary); }
+
+.certs-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+}
+
+.cert-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.cert-card.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.5s ease, transform 0.5s ease, border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.cert-card:hover {
+  transform: translateY(-4px);
+}
+
+/* Carte certification obtenue */
+.cert-card--obtained {
+  border-color: rgba(40, 200, 64, 0.3);
+}
+.cert-card--obtained:hover {
+  box-shadow: 0 10px 30px rgba(40, 200, 64, 0.1);
+  border-color: rgba(40, 200, 64, 0.6);
+}
+
+/* Carte en cours */
+.cert-card--progress {
+  border-color: rgba(0, 245, 255, 0.2);
+}
+.cert-card--progress:hover {
+  box-shadow: 0 10px 30px rgba(0, 245, 255, 0.08);
+  border-color: rgba(0, 245, 255, 0.4);
+}
+
+/* Carte objectif futur */
+.cert-card--planned {
+  border-color: rgba(155, 93, 229, 0.2);
+  opacity: 0.8;
+}
+.cert-card--planned:hover {
+  opacity: 1;
+  box-shadow: 0 10px 30px rgba(155, 93, 229, 0.08);
+  border-color: rgba(155, 93, 229, 0.4);
+}
+
+.cert-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+/* Logo de la certification */
+.cert-card__logo {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 900;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.05em;
+}
+
+.cert-card__logo--pix     { background: var(--cl-pix-bg,rgba(40,200,64,0.12));    color: var(--cl-pix-color,#28c840);               border: 1px solid var(--cl-pix-bd,rgba(40,200,64,0.3)); }
+.cert-card__logo--cisco   { background: var(--cl-csc-bg,rgba(0,245,255,0.1));     color: var(--cl-csc-color,var(--color-neon-cyan)); border: 1px solid var(--cl-csc-bd,var(--color-border)); }
+.cert-card__logo--comptia { background: var(--cl-cmp-bg,rgba(255,0,110,0.1));     color: var(--cl-cmp-color,var(--color-neon-magenta)); border: 1px solid var(--cl-cmp-bd,rgba(255,0,110,0.3)); }
+.cert-card__logo--ccna    { background: var(--cl-ccna-bg,rgba(155,93,229,0.12));  color: var(--cl-ccna-color,var(--color-neon-purple)); border: 1px solid var(--cl-ccna-bd,rgba(155,93,229,0.3)); }
+
+/* Badges de statut */
+.cert-status {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  padding: var(--space-1) var(--space-3);
+  border-radius: 50px;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+.cert-status--obtained { background: var(--cs-obt-bg,rgba(40,200,64,0.15));   color: var(--cs-obt-color,#28c840);                   border: 1px solid var(--cs-obt-border,rgba(40,200,64,0.4)); }
+.cert-status--progress { background: var(--cs-prg-bg,rgba(0,245,255,0.1));    color: var(--cs-prg-color,var(--color-neon-cyan));      border: 1px solid var(--cs-prg-border,var(--color-border-strong)); }
+.cert-status--planned  { background: var(--cs-pln-bg,rgba(155,93,229,0.12));  color: var(--cs-pln-color,var(--color-neon-purple));    border: 1px solid var(--cs-pln-border,rgba(155,93,229,0.3)); }
+
+.cert-card__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.03em;
+  margin-bottom: var(--space-1);
+}
+
+.cert-card__issuer {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-3);
+  letter-spacing: 0.05em;
+}
+
+.cert-card__description {
+  font-size: var(--fs-sm);
+  color: #e8f4fc;
+  line-height: 1.6;
+  margin-bottom: var(--space-4);
+}
+
+.cert-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.cert-card__year {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+}
+
+.cert-card__link {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-neon-cyan);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+.cert-card__link:hover { color: #fff; }
+
+/* Barre de progression pour les certs en cours */
+.cert-card__progress-bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.cert-card__progress-fill {
+  display: block;
+  height: 100%;
+  width: var(--cert-progress, 0%);
+  background: linear-gradient(90deg, var(--color-neon-cyan), var(--color-neon-purple));
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(0,245,255,0.5);
+  animation: progress-reveal 1.2s ease forwards;
+}
+
+/* ================================================================
+   RESPONSIVE AJOUTS — TABLETTE ≥ 640px
+   ================================================================ */
+@media (min-width: 640px) {
+  .certs-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ================================================================
+   RESPONSIVE AJOUTS — DESKTOP ≥ 1024px
+   ================================================================ */
+@media (min-width: 1024px) {
+  .certs-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ---- Certifications intégrées dans Compétences ---- */
+.certs-inline {
+  margin-top: var(--space-12);
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--color-border);
+}
+
+.certs-inline__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-6);
+}
+
+.certs-inline__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+.cert-inline-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-6);
+  transition: border-color var(--transition-base);
+  flex-wrap: wrap;
+}
+
+.cert-inline-card--obtained { border-color: rgba(40,200,64,0.25); }
+.cert-inline-card--progress { border-color: rgba(0,245,255,0.2); }
+.cert-inline-card--planned  { opacity: 0.75; }
+
+.cert-inline-card__logo {
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 900;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.cert-inline-card__logo--pix     { background: rgba(40,200,64,0.12);  color: #28c840; border: 1px solid rgba(40,200,64,0.3); }
+.cert-inline-card__logo--cisco   { background: rgba(0,245,255,0.1);   color: var(--color-neon-cyan); border: 1px solid var(--color-border); }
+.cert-inline-card__logo--ccna    { background: rgba(155,93,229,0.12); color: var(--color-neon-purple); border: 1px solid rgba(155,93,229,0.3); }
+.cert-inline-card__logo--comptia { background: rgba(255,0,110,0.1);   color: var(--color-neon-magenta); border: 1px solid rgba(255,0,110,0.3); }
+
+.cert-inline-card__name {
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.03em;
+}
+
+.cert-inline-card__detail {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.cert-inline-card .cert-status {
+  margin-left: auto;
+}
+
+@media (min-width: 640px) {
+  .certs-inline__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ================================================================
+   20. ACCESSIBILITÉ — PRÉFÉRENCES DE MOUVEMENT RÉDUITES
+   Si l'utilisateur préfère moins d'animations (paramètre OS),
+   on coupe toutes les animations et transitions non essentielles
+   ================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .bg-grid { animation: none; }
+  .kanji-float { animation: none; }
+  .typewriter { width: 100%; animation: none; border-right: none; }
+  .avatar-ring { animation: none; }
+  .hero-badge__dot { animation: none; }
+  .scroll-indicator { animation: none; }
+  .terminal-cursor { animation: none; }
+}
+
+/* ============================================================
+   TABLEAU DE SYNTHÈSE E5
+   ============================================================ */
+
+.exam-synthesis-table {
+  margin-top: 2.5rem;
+}
+
+.synthesis-table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.synthesis-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  background: rgba(255,255,255,0.02);
+}
+
+.synthesis-table thead th {
+  background: rgba(255,255,255,0.06);
+  color: var(--color-accent, #e0e0e0);
+  font-weight: 600;
+  text-align: center;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid rgba(255,255,255,0.1);
+  white-space: nowrap;
+}
+
+.synthesis-table thead th.synth-col-realisation {
+  text-align: left;
+  width: 42%;
+  white-space: normal;
+}
+
+.synthesis-table thead th.synth-col-periode {
+  width: 9%;
+}
+
+.synthesis-table thead th.synth-col-competences {
+  background: rgba(255,255,255,0.09);
+  letter-spacing: 0.03em;
+}
+
+.synthesis-table thead th.synth-comp {
+  width: 7%;
+  font-size: 0.78rem;
+}
+
+.synthesis-table tbody td {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid rgba(255,255,255,0.07);
+  vertical-align: middle;
+  color: var(--color-text, #ccc);
+}
+
+.synth-section-row td {
+  background: rgba(255,255,255,0.04);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.5);
+  padding: 0.4rem 0.75rem;
+}
+
+.synth-realisation strong {
+  display: block;
+  color: #fff;
+  margin-bottom: 0.25rem;
+  font-size: 0.83rem;
+  line-height: 1.4;
+}
+
+.synth-docs {
+  font-size: 0.73rem;
+  color: rgba(255,255,255,0.4);
+  font-style: italic;
+}
+
+.synth-periode {
+  text-align: center;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.5);
+  white-space: nowrap;
+}
+
+.synth-check {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.synth-check--yes {
+  color: #4ade80;
+}
+
+.synth-check--no {
+  color: transparent;
+}
+
+.synth-subhead {
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.5);
+  display: block;
+  margin-top: 0.2rem;
+}
+
+@media (max-width: 768px) {
+  .synthesis-table {
+    font-size: 0.75rem;
+  }
+  .synthesis-table thead th.synth-col-realisation {
+    width: auto;
+  }
+}
+
+/* ============================================================
+   PARCOURS INTÉGRÉ DANS À PROPOS
+============================================================ */
+.about-timeline-wrapper {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(0, 245, 255, 0.15);
+}
+
+.about-timeline-title {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* ================================================================
+   BORDURES CYBERPUNK — Style "holo-panel" discret
+   À coller à la fin de style.css
+   Ne touche pas au mode jour, ne touche pas aux couleurs de texte.
+   ================================================================ */
+
+/* ---- Cartes projets ---- */
+.project-card {
+  border: 1.5px solid rgba(0, 210, 220, 0.22);
+  box-shadow: 4px 4px 0px rgba(0, 210, 220, 0.14);
+}
+
+.project-card:hover {
+  border-color: rgba(0, 210, 220, 0.45);
+  box-shadow: 5px 5px 0px rgba(0, 210, 220, 0.28),
+              0 10px 40px rgba(0, 210, 220, 0.07);
+}
+
+/* Carte projet mise en avant — lilas doux */
+.project-card--featured {
+  border: 1.5px solid rgba(160, 110, 230, 0.28);
+  box-shadow: 4px 4px 0px rgba(160, 110, 230, 0.18);
+}
+
+.project-card--featured:hover {
+  border-color: rgba(160, 110, 230, 0.5);
+  box-shadow: 5px 5px 0px rgba(160, 110, 230, 0.32),
+              0 10px 40px rgba(160, 110, 230, 0.07);
+}
+
+/* ---- Cartes veille technologique ---- */
+.watch-card {
+  border: 1.5px solid rgba(0, 210, 220, 0.2);
+  box-shadow: 4px 4px 0px rgba(0, 210, 220, 0.12);
+}
+
+.watch-card:hover {
+  border-color: rgba(0, 210, 220, 0.42);
+  box-shadow: 5px 5px 0px rgba(0, 210, 220, 0.26);
+}
+
+/* ---- Cartes E5 & E6 ---- */
+.exam-info-card {
+  border: 1.5px solid rgba(0, 210, 220, 0.2);
+  box-shadow: 4px 4px 0px rgba(0, 210, 220, 0.12);
+}
+
+/* E6 — rose pâle pour différencier */
+.exam-section--e6 .exam-info-card {
+  border-color: rgba(220, 80, 130, 0.22);
+  box-shadow: 4px 4px 0px rgba(220, 80, 130, 0.14);
+}
+
+/* ---- Cartes certifications ---- */
+.cert-card {
+  border: 1.5px solid rgba(160, 110, 230, 0.22);
+  box-shadow: 4px 4px 0px rgba(160, 110, 230, 0.13);
+}
+
+.cert-card:hover {
+  border-color: rgba(160, 110, 230, 0.45);
+  box-shadow: 5px 5px 0px rgba(160, 110, 230, 0.28);
+}
+
+/* Cert obtenue — vert jade */
+.cert-card--obtained {
+  border-color: rgba(0, 180, 140, 0.25);
+  box-shadow: 4px 4px 0px rgba(0, 180, 140, 0.15);
+}
+
+.cert-card--obtained:hover {
+  border-color: rgba(0, 180, 140, 0.48);
+  box-shadow: 5px 5px 0px rgba(0, 180, 140, 0.3);
+}
+
+/* Cert planifiée — ambre chaud */
+.cert-card--planned {
+  border-color: rgba(200, 150, 40, 0.2);
+  box-shadow: 4px 4px 0px rgba(200, 150, 40, 0.12);
+}
+
+/* ---- Certifications inline (section compétences) ---- */
+.cert-inline-card {
+  border: 1.5px solid rgba(0, 210, 220, 0.2);
+  box-shadow: 3px 3px 0px rgba(0, 210, 220, 0.12);
+}
+
+.cert-inline-card--obtained {
+  border-color: rgba(0, 180, 140, 0.25);
+  box-shadow: 3px 3px 0px rgba(0, 180, 140, 0.14);
+}
+
+.cert-inline-card--planned {
+  border-color: rgba(200, 150, 40, 0.18);
+  box-shadow: 3px 3px 0px rgba(200, 150, 40, 0.1);
+}
+
+/* ---- Terminal hero ---- */
+.hero-terminal {
+  border: 1.5px solid rgba(0, 210, 220, 0.3);
+  box-shadow: 4px 4px 0px rgba(0, 210, 220, 0.16),
+              0 0 40px rgba(0, 210, 220, 0.06);
+}
+
+/* ---- Formulaire de contact ---- */
+.contact-form-wrapper {
+  border: 1.5px solid rgba(0, 210, 220, 0.2);
+  box-shadow: 4px 4px 0px rgba(0, 210, 220, 0.12);
+}
+
+/* ---- Timeline items ---- */
+.timeline-item__content {
+  border: 1.5px solid rgba(0, 210, 220, 0.18);
+  box-shadow: 3px 3px 0px rgba(0, 210, 220, 0.1);
+}
+
+.timeline-item--current .timeline-item__content {
+  border-color: rgba(0, 210, 220, 0.38);
+  box-shadow: 4px 4px 0px rgba(0, 210, 220, 0.22);
+}
+
+/* ---- Tableau des compétences (wrapper) ---- */
+.table-wrapper {
+  border: 1.5px solid rgba(0, 210, 220, 0.2);
+  box-shadow: 4px 4px 0px rgba(0, 210, 220, 0.12);
+}
+
+   LOGOS BRAND COLORS — Simple Icons vraies couleurs
+   ================================================================ */
+
+.skill-card__icon i { font-size: 18px; line-height: 1; display: block; }
+
+.skill-card--system   .skill-card__icon i { color: #FCC624; }
+.skill-card--network  .skill-card__icon i { color: #0078D4; }
+.skill-card--security .skill-card__icon i { color: #dc1414; }
+.skill-card--dev      .skill-card__icon i { color: #F05032; }
+
+.project-tag i,
+.project-tech-list li i { font-size: 13px; vertical-align: -2px; margin-right: 4px; }
+
+.si-linux   { color: #FCC624 !important; }
+.si-debian  { color: #A81D33 !important; }
+.si-apache  { color: #D22128 !important; }
+.si-mariadb { color: #003545 !important; }
+.si-php     { color: #777BB4 !important; }
+.si-pfsense { color: #444    !important; }
+.si-windows { color: #0078D4 !important; }
+.si-git     { color: #F05032 !important; }
+
+html.mode-jour .si-mariadb { color: #005f73 !important; }
+html.mode-jour .si-pfsense { color: #555    !important; }
+
+/* Logos dans project-tech-list et project-tag — taille et contraste boostés */
+html.mode-jour .project-tech-list li i,
+html.mode-jour .project-tag i {
+  font-size: 15px !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+/* ================================================================
+   MODE JOUR — numéros 01/02 rouge shonen
+   ================================================================ */
+
+html.mode-jour .project-card__number {
+  color: #dc1414 !important;
+  text-shadow: 3px 3px 0px rgba(220,20,20,0.2);
+  font-family: var(--font-display);
+}
+
+/* ================================================================
+   MODE JOUR — Kanji décoratifs 50% opacité + badges noirs
+   ================================================================ */
+
+html.mode-jour .kanji-float {
+  color: rgba(17, 17, 17, 0.45) !important;
+  opacity: 1 !important;
+}
+html.mode-jour .section-title__kanji {
+  color: rgba(17, 17, 17, 0.45) !important;
+  opacity: 1 !important;
+}
+html.mode-jour .hero-kanji-deco {
+  color: rgba(17, 17, 17, 0.45) !important;
+  opacity: 1 !important;
+}
+
+/* Badge Linux et tous les project-tag → noir */
+html.mode-jour .project-tag,
+html.mode-jour .timeline-tag {
+  color: #333 !important;
+  border-color: rgba(17, 17, 17, 0.25) !important;
+  background: rgba(17, 17, 17, 0.04) !important;
+}
+html.mode-jour .project-tag--highlight {
+  color: #111 !important;
+  border-color: rgba(17, 17, 17, 0.35) !important;
+  background: rgba(17, 17, 17, 0.06) !important;
+}
+
+/* Hero */
+html.mode-jour .typewriter {
+  border-right-color: #dc1414 !important;
+  color: #dc1414 !important;
+  text-shadow: none !important;
+}
+html.mode-jour .btn--primary {
+  background: #dc1414 !important;
+  color: #ffffff !important;
+  border: 2.5px solid #111 !important;
+  box-shadow: 3px 3px 0px #111 !important;
+}
+html.mode-jour .btn--primary:hover {
+  background: #b91010 !important;
+  box-shadow: 5px 5px 0px #111 !important;
+  transform: translate(-2px, -2px) !important;
+}
+html.mode-jour .btn--ghost {
+  color: #111 !important;
+  border: 2.5px solid #111 !important;
+  background: transparent !important;
+  box-shadow: 3px 3px 0px #dc1414 !important;
+}
+html.mode-jour .btn--ghost:hover {
+  background: #111 !important;
+  color: #fffdf8 !important;
+  box-shadow: 5px 5px 0px #dc1414 !important;
+  transform: translate(-2px, -2px) !important;
+}
+html.mode-jour .btn--cv {
+  color: #d97706 !important;
+  border: 2.5px solid #111 !important;
+  background: transparent !important;
+  box-shadow: 3px 3px 0px #111 !important;
+}
+html.mode-jour .btn--cv:hover {
+  background: #111 !important;
+  color: #fffdf8 !important;
+  box-shadow: 5px 5px 0px #111 !important;
+  transform: translate(-2px, -2px) !important;
+}
+html.mode-jour .hero-badge {
+  border-color: #111 !important;
+  box-shadow: 2px 2px 0px #111 !important;
+}
+html.mode-jour .hero-badge__dot { background: #dc1414 !important; }
+html.mode-jour .terminal-cursor { color: #dc1414 !important; }
+html.mode-jour .footer-github { color: #dc1414 !important; }
+html.mode-jour .footer-github:hover { color: #b91010 !important; }
+
+/* ================================================================
+   FOOTER MODE JOUR — Crochets rouge, texte noir
+   ================================================================ */
+html.mode-jour .footer-logo { color: #111 !important; }
+html.mode-jour .footer-logo__bracket { color: #dc1414 !important; }
+html.mode-jour .footer-tagline { color: #111 !important; }
+html.mode-jour .footer-copy { color: #111 !important; }
+html.mode-jour .footer-kanji { color: #111 !important; }
+
+/* ================================================================
+   CURSEUR MANGA — Animations encre et splash
+   ================================================================ */
+@keyframes mangaInkFade {
+  0%   { opacity: 0.55; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0;    transform: translate(-50%, -50%) scale(2); }
+}
+
+@keyframes mangaSplash {
+  0%   { opacity: 0.75; transform: translate(-50%, -50%) scale(0); }
+  60%  { opacity: 0.45; }
+  100% { opacity: 0;    transform: translate(-50%, -50%) scale(1); }
+}
+
+/* Cache le curseur natif en mode jour */
+html.mode-jour,
+html.mode-jour * {
+  cursor: none !important;
+}
+
+/* Cache la plume en mode nuit */
+#manga-pen { display: none; }
+
+/* ================================================================
+   MODE JOUR — Désactive complètement l'effet glitch sur le nom
+   ================================================================ */
+html.mode-jour .glitch-text::before,
+html.mode-jour .glitch-text::after {
+  display: none !important;
+  animation: none !important;
+  content: none !important;
+}
+
+html.mode-jour .glitch-text {
+  color: #1e293b !important;
+  text-shadow: none !important;
+  animation: none !important;
+}
+
+html.mode-jour .glitch-text--accent {
+  color: #1e293b !important;
+  text-shadow: none !important;
+  animation: none !important;
+}
+
+/* ================================================================
+   MODE NUIT — Blanc-bleu glacé + Or
+   Palette : #dff0fb (blanc-bleu) | #eab308 (or)
+   Version consolidée — toutes les règles unifiées ici
+   ================================================================ */
+
+/* ---- Variables CSS ---- */
+html:not(.mode-jour) {
+  --color-neon-cyan:    #dff0fb;
+  --color-neon-magenta: #eab308;
+  --glow-cyan:
+    0 0 8px rgba(223, 240, 251, 0.8),
+    0 0 24px rgba(223, 240, 251, 0.30),
+    0 0 60px rgba(223, 240, 251, 0.10);
+  --glow-magenta:
+    0 0 8px rgba(234, 179, 8, 0.8),
+    0 0 24px rgba(234, 179, 8, 0.30),
+    0 0 60px rgba(234, 179, 8, 0.10);
+  --glow-text: 0 0 14px rgba(223, 240, 251, 0.85), 0 0 40px rgba(223, 240, 251, 0.25);
+  --color-border:        rgba(223, 240, 251, 0.20);
+  --color-border-strong: rgba(223, 240, 251, 0.65);
+  --shadow-pixel:        4px 4px 0px rgba(223, 240, 251, 0.50);
+  --shadow-pixel-hover:  6px 6px 0px rgba(234, 179, 8, 0.70);
+  --terminal-success-color: #eab308;
+  /* Certifications — logos pills */
+  --cl-pix-bg:    rgba(234,179,8,0.13);   --cl-pix-color:  #eab308;  --cl-pix-bd:   rgba(234,179,8,0.42);
+  --cl-csc-bg:    rgba(223,240,251,0.09); --cl-csc-color:  #dff0fb;  --cl-csc-bd:   rgba(223,240,251,0.30);
+  --cl-cmp-bg:    rgba(234,179,8,0.09);   --cl-cmp-color:  #eab308;  --cl-cmp-bd:   rgba(234,179,8,0.30);
+  --cl-ccna-bg:   rgba(223,240,251,0.08); --cl-ccna-color: #e8f4fc;  --cl-ccna-bd:  rgba(223,240,251,0.26);
+  /* Certifications — badges statut */
+  --cs-obt-bg:    rgba(234,179,8,0.14);   --cs-obt-color:  #eab308;  --cs-obt-border: rgba(234,179,8,0.55);
+  --cs-prg-bg:    rgba(223,240,251,0.09); --cs-prg-color:  #dff0fb;  --cs-prg-border: rgba(223,240,251,0.48);
+  --cs-pln-bg:    rgba(223,240,251,0.06); --cs-pln-color:  #a8c8e0;  --cs-pln-border: rgba(223,240,251,0.25);
+}
+
+/* ================================================================
+   FOND & DÉCORS
+   ================================================================ */
+
+html:not(.mode-jour) .bg-grid {
+  background-image:
+    linear-gradient(rgba(223, 240, 251, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(223, 240, 251, 0.035) 1px, transparent 1px) !important;
+  background-size: 50px 50px !important;
+}
+
+
+
+/* ================================================================
+   PRÉLOADER
+   ================================================================ */
+
+html:not(.mode-jour) .preloader { background: #06080a !important; }
+html:not(.mode-jour) .preloader__bracket {
+  color: #eab308 !important;
+  text-shadow: 0 0 20px rgba(234, 179, 8, 0.80) !important;
+}
+html:not(.mode-jour) .preloader__letter { color: #dff0fb !important; }
+html:not(.mode-jour) .preloader__bar {
+  background: linear-gradient(90deg, #dff0fb, #eab308) !important;
+  box-shadow: 0 0 8px rgba(234, 179, 8, 0.50) !important;
+}
+html:not(.mode-jour) .preloader__status { color: rgba(168, 200, 224, 0.60) !important; }
+html:not(.mode-jour) .preloader__kanji  { color: rgba(234, 179, 8, 0.18) !important; }
+
+/* ================================================================
+   BARRE DE LECTURE
+   ================================================================ */
+
+html:not(.mode-jour) .reading-progress {
+  background: linear-gradient(90deg, #dff0fb, #eab308) !important;
+  box-shadow: 0 0 8px rgba(234, 179, 8, 0.45) !important;
+}
+
+
+/* ================================================================
+   NAVIGATION
+   ================================================================ */
+
+html:not(.mode-jour) .site-header {
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+html:not(.mode-jour) .site-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 8%;
+  right: 8%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(223, 240, 251, 0.40) 25%,
+    rgba(234, 179, 8, 0.30) 50%,
+    rgba(223, 240, 251, 0.40) 75%,
+    transparent
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+html:not(.mode-jour) .site-header--scrolled {
+  box-shadow:
+    0 4px 30px rgba(234, 179, 8, 0.06),
+    0 1px 0 rgba(223, 240, 251, 0.15);
+}
+
+html:not(.mode-jour) .nav-logo__bracket {
+  color: #eab308 !important;
+  text-shadow: 0 0 10px rgba(234,179,8,0.65), 0 0 24px rgba(234,179,8,0.20) !important;
+}
+html:not(.mode-jour) .nav-logo__name {
+  color: #dff0fb !important;
+  text-shadow: 0 0 8px rgba(223,240,251,0.40) !important;
+  letter-spacing: 0.08em;
+}
+html:not(.mode-jour) .nav-logo__kanji { color: rgba(234,179,8,0.55) !important; }
+
+/* Tous les liens — bordure blanc-bleu + pixel shadow */
+html:not(.mode-jour) .nav-link {
+  color: rgba(223, 240, 251, 0.75) !important;
+  background: rgba(223, 240, 251, 0.03) !important;
+  border: 1.5px solid rgba(223, 240, 251, 0.28) !important;
+  box-shadow: 2px 2px 0px rgba(223, 240, 251, 0.20) !important;
+  padding: 5px 12px !important;
+  border-radius: 3px !important;
+  transition: box-shadow 0.12s ease, transform 0.12s ease, border-color 0.12s ease, color 0.12s ease !important;
+}
+
+/* Lien actif — or avec pixel shadow or prononcé */
+html:not(.mode-jour) .nav-link--active {
+  color: #eab308 !important;
+  border-color: rgba(234, 179, 8, 0.80) !important;
+  box-shadow: 4px 4px 0px rgba(234, 179, 8, 0.55) !important;
+  background: rgba(234, 179, 8, 0.07) !important;
+  text-shadow: 0 0 10px rgba(234, 179, 8, 0.45) !important;
+}
+
+/* Hover — translate + or */
+html:not(.mode-jour) .nav-link:hover {
+  color: #eab308 !important;
+  border-color: rgba(234, 179, 8, 0.60) !important;
+  box-shadow: 1px 1px 0px rgba(234, 179, 8, 0.35) !important;
+  transform: translate(1px, 1px) !important;
+  background: rgba(234, 179, 8, 0.04) !important;
+  text-shadow: none !important;
+}
+
+html:not(.mode-jour) .nav-link--cta {
+  color: #eab308 !important;
+  border-color: rgba(234, 179, 8, 0.65) !important;
+  box-shadow: 2px 2px 0px rgba(234, 179, 8, 0.35) !important;
+  text-shadow: 0 0 10px rgba(234, 179, 8, 0.40) !important;
+}
+html:not(.mode-jour) .nav-link--cta:hover { color: #fcd34d !important; }
+
+html:not(.mode-jour) .nav-link--github {
+  border: 2px solid rgba(234,179,8,0.55) !important;
+  color: #eab308 !important;
+  box-shadow: 2px 2px 0px rgba(234,179,8,0.30) !important;
+}
+html:not(.mode-jour) .nav-link--github:hover {
+  border-color: #eab308 !important;
+  background: rgba(234,179,8,0.08) !important;
+  box-shadow: 4px 4px 0px rgba(234,179,8,0.45) !important;
+  transform: translate(-1px,-1px) !important;
+  color: #fcd34d !important;
+}
+
+html:not(.mode-jour) .matrix-toggle {
+  background: transparent !important;
+  border: 2px solid rgba(234, 179, 8, 0.65) !important;
+  box-shadow: 3px 3px 0px rgba(234, 179, 8, 0.40) !important;
+  color: #eab308 !important;
+}
+html:not(.mode-jour) .matrix-toggle:hover {
+  background: rgba(234, 179, 8, 0.08) !important;
+  border-color: #eab308 !important;
+  box-shadow: 5px 5px 0px rgba(234, 179, 8, 0.55) !important;
+  transform: translate(-2px, -2px) !important;
+}
+
+/* ================================================================
+   ÉLÉMENTS TYPOGRAPHIQUES GLOBAUX
+   ================================================================ */
+
+html:not(.mode-jour) body { color: #ddeef8 !important; }
+
+/* Description hero (hardcodée en base, on la réaffirme) */
+html:not(.mode-jour) .hero-description { color: #e8f4fc !important; }
+
+/* Kanjis flottants */
+html:not(.mode-jour) .kanji-float {
+  opacity: 0.20;
+  color: #eab308;
+  text-shadow: 0 0 60px rgba(234, 179, 8, 0.20);
+}
+html:not(.mode-jour) .section-title__kanji {
+  opacity: 0.75;
+  color: #dff0fb;
+  text-shadow: 0 0 10px rgba(168, 204, 224, 0.35);
+}
+
+html:not(.mode-jour) .section-title {
+  text-shadow: 0 0 20px rgba(221, 238, 248, 0.50);
+}
+
+/* Glitch hero — palette nuit cohérente */
+html:not(.mode-jour) .glitch-text {
+  color: #f0f8ff;
+  text-shadow: none;
+}
+html:not(.mode-jour) .glitch-text--accent {
+  color: #dff0fb;
+  text-shadow:
+    0 0 8px rgba(223, 240, 251, 0.35),
+    0 0 25px rgba(223, 240, 251, 0.10);
+}
+/* Couche glitch ::before → or subtil */
+html:not(.mode-jour) .glitch-text::before { color: rgba(234, 179, 8, 0.85) !important; }
+/* Couche glitch ::after  → blanc-bleu */
+html:not(.mode-jour) .glitch-text::after  { color: rgba(223, 240, 251, 0.85) !important; }
+
+/* ================================================================
+   SECTIONS — LABELS & DIVIDERS
+   ================================================================ */
+
+/* Par défaut toutes les sections : blanc-bleu */
+html:not(.mode-jour) .section-label {
+  color: #eab308 !important;
+  opacity: 1 !important;
+  text-shadow: 0 0 12px rgba(234, 179, 8, 0.50) !important;
+}
+html:not(.mode-jour) .section-divider {
+  background: linear-gradient(90deg, transparent, #eab308, transparent) !important;
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.50), 0 0 30px rgba(234, 179, 8, 0.15) !important;
+}
+
+/* Sections paires (compétences, veille, contact, e5) → or */
+html:not(.mode-jour) #competences .section-label,
+html:not(.mode-jour) #veille .section-label,
+html:not(.mode-jour) #contact .section-label,
+html:not(.mode-jour) #e5 .section-label {
+  color: #eab308 !important;
+  text-shadow: 0 0 12px rgba(234, 179, 8, 0.50) !important;
+}
+html:not(.mode-jour) #competences .section-divider,
+html:not(.mode-jour) #veille .section-divider,
+html:not(.mode-jour) #contact .section-divider,
+html:not(.mode-jour) #e5 .section-divider {
+  background: linear-gradient(90deg, transparent, #eab308, transparent) !important;
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.50), 0 0 30px rgba(234, 179, 8, 0.15) !important;
+}
+
+/* ================================================================
+   HERO
+   ================================================================ */
+
+html:not(.mode-jour) .hero-role {
+  color: #eab308 !important;
+  text-shadow: 0 0 14px rgba(234, 179, 8, 0.50);
+  font-size: var(--fs-xl);
+}
+html:not(.mode-jour) .typewriter {
+  border-right-color: #eab308 !important;
+  color: #eab308 !important;
+  text-shadow: 0 0 14px rgba(234, 179, 8, 0.50);
+}
+html:not(.mode-jour) .hero-badge {
+  border: 2px solid rgba(234, 179, 8, 0.65) !important;
+  box-shadow: 3px 3px 0px rgba(234, 179, 8, 0.40), 0 0 16px rgba(234, 179, 8, 0.12) !important;
+  background: rgba(234, 179, 8, 0.06) !important;
+  color: #eab308 !important;
+  font-weight: 700;
+}
+html:not(.mode-jour) .hero-badge__dot {
+  background: #eab308 !important;
+  box-shadow: 0 0 8px rgba(234, 179, 8, 0.9) !important;
+}
+html:not(.mode-jour) .scroll-indicator { color: rgba(234,179,8,0.55) !important; }
+
+/* Boutons hero */
+html:not(.mode-jour) .hero-section .btn--primary {
+  background: #06080a !important;
+  color: #eab308 !important;
+  border: 2px solid rgba(234,179,8,0.75) !important;
+  box-shadow: 4px 4px 0px rgba(234,179,8,0.40) !important;
+}
+html:not(.mode-jour) .hero-section .btn--primary:hover {
+  background: rgba(234,179,8,0.10) !important;
+  border-color: #eab308 !important;
+  box-shadow: 6px 6px 0px rgba(234,179,8,0.65) !important;
+  color: #eab308 !important;
+  transform: translate(-2px,-2px) !important;
+}
+html:not(.mode-jour) .hero-section .btn--ghost {
+  background: #06080a !important;
+  color: #eab308 !important;
+  border: 2px solid rgba(234,179,8,0.75) !important;
+  box-shadow: 4px 4px 0px rgba(234,179,8,0.45) !important;
+}
+html:not(.mode-jour) .hero-section .btn--ghost:hover {
+  background: rgba(234,179,8,0.08) !important;
+  border-color: #eab308 !important;
+  box-shadow: 6px 6px 0px rgba(234,179,8,0.65) !important;
+  transform: translate(-2px,-2px) !important;
+}
+
+/* ================================================================
+   BOUTONS GLOBAUX
+   ================================================================ */
+
+html:not(.mode-jour) .btn--primary {
+  background: #dff0fb;
+  color: #06080c;
+  border: 2px solid #dff0fb !important;
+  box-shadow: 4px 4px 0px rgba(255, 255, 255, 0.75);
+  font-weight: 700;
+}
+html:not(.mode-jour) .btn--primary:hover {
+  background: #ffffff;
+  border-color: #ffffff !important;
+  box-shadow: 6px 6px 0px rgba(255, 255, 255, 0.9);
+  transform: translate(-2px, -2px);
+}
+html:not(.mode-jour) .btn--ghost {
+  background: #06080a !important;
+  border: 2px solid rgba(234, 179, 8, 0.65) !important;
+  color: #eab308;
+  box-shadow: 4px 4px 0px rgba(234, 179, 8, 0.40);
+}
+html:not(.mode-jour) .btn--ghost:hover {
+  border-color: rgba(234, 179, 8, 0.95) !important;
+  background: rgba(234, 179, 8, 0.08) !important;
+  box-shadow: 6px 6px 0px rgba(234, 179, 8, 0.60);
+  transform: translate(-2px, -2px);
+}
+html:not(.mode-jour) .btn--cv {
+  background: #06080a !important;
+  color: #eab308 !important;
+  border: 2px solid rgba(234,179,8,0.65) !important;
+  box-shadow: 4px 4px 0px rgba(234,179,8,0.35) !important;
+}
+html:not(.mode-jour) .btn--cv:hover {
+  color: #06080c !important;
+  box-shadow: 6px 6px 0px rgba(234,179,8,0.60) !important;
+  transform: translate(-2px,-2px) !important;
+}
+html:not(.mode-jour) .btn--cv::before { background: #eab308 !important; }
+
+/* ================================================================
+   TERMINAL HERO
+   ================================================================ */
+
+html:not(.mode-jour) .hero-terminal {
+  background: rgba(4, 8, 14, 0.96) !important;
+  border: 2px solid rgba(234, 179, 8, 0.65) !important;
+  box-shadow:
+    4px 4px 0px rgba(234, 179, 8, 0.45),
+    0 0 30px rgba(234, 179, 8, 0.08) !important;
+}
+html:not(.mode-jour) .terminal-header {
+  background: rgba(0,0,0,0.55) !important;
+  border-bottom: 1px solid rgba(234, 179, 8, 0.25) !important;
+}
+html:not(.mode-jour) .terminal-line { color: #ffffff !important; }
+html:not(.mode-jour) .terminal-prompt { color: #eab308 !important; text-shadow: 0 0 10px rgba(234,179,8,0.55) !important; }
+html:not(.mode-jour) .terminal-output { color: #e8f4fc !important; }
+html:not(.mode-jour) .terminal-output--success { color: #eab308 !important; }
+html:not(.mode-jour) .terminal-cursor { color: #eab308 !important; }
+
+/* ================================================================
+   CARDS GLOBALES (toutes sections)
+   ================================================================ */
+
+html:not(.mode-jour) .project-card,
+html:not(.mode-jour) .watch-card,
+html:not(.mode-jour) .cert-card,
+html:not(.mode-jour) .cert-inline-card,
+html:not(.mode-jour) .exam-info-card,
+html:not(.mode-jour) .timeline-item__content,
+html:not(.mode-jour) .contact-form-wrapper,
+html:not(.mode-jour) .table-wrapper {
+  border: 2px solid rgba(234, 179, 8, 0.40) !important;
+  box-shadow: 4px 4px 0px rgba(234, 179, 8, 0.20) !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease !important;
+}
+
+html:not(.mode-jour) .project-card:hover,
+html:not(.mode-jour) .watch-card:hover,
+html:not(.mode-jour) .cert-card:hover,
+html:not(.mode-jour) .cert-inline-card:hover,
+html:not(.mode-jour) .exam-info-card:hover {
+  border-color: rgba(234, 179, 8, 0.75) !important;
+  box-shadow: 6px 6px 0px rgba(234, 179, 8, 0.65) !important;
+  transform: translate(-2px, -2px) !important;
+}
+
+/* ================================================================
+   SECTION À PROPOS
+   ================================================================ */
+
+/* Ligne latérale décorative → blanc-bleu au lieu du cyan de base */
+html:not(.mode-jour) .about-section::before {
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(223, 240, 251, 0.50),
+    transparent
+  ) !important;
+  opacity: 0.5 !important;
+}
+
+html:not(.mode-jour) .about-grid {
+  background: rgba(234, 179, 8, 0.02);
+  border: 2px solid rgba(234, 179, 8, 0.55) !important;
+  border-radius: var(--radius-md);
+  padding: var(--space-8);
+  box-shadow: 4px 4px 0px rgba(234, 179, 8, 0.35) !important;
+}
+html:not(.mode-jour) .avatar-initials {
+  border: 2px solid #eab308 !important;
+  box-shadow:
+    0 0 0 1px rgba(234, 179, 8, 0.3),
+    0 0 20px rgba(234, 179, 8, 0.25),
+    4px 4px 0px rgba(234, 179, 8, 0.35) !important;
+  color: #eab308 !important;
+  text-shadow: 0 0 16px rgba(234, 179, 8, 0.6) !important;
+}
+html:not(.mode-jour) .avatar-ring--1 { border-color: rgba(234, 179, 8, 0.25) !important; }
+html:not(.mode-jour) .avatar-ring--2 { border-color: rgba(223, 240, 251, 0.15) !important; }
+
+html:not(.mode-jour) .about-id-badge__status { color: #eab308 !important; }
+html:not(.mode-jour) .status-dot {
+  background: #eab308 !important;
+  box-shadow: 0 0 6px rgba(234, 179, 8, 0.85) !important;
+}
+html:not(.mode-jour) .about-stats { border-color: rgba(234, 179, 8, 0.5); }
+html:not(.mode-jour) .contact-inline__icon {
+  color: #eab308 !important;
+  text-shadow: 0 0 10px rgba(234, 179, 8, 0.55) !important;
+}
+
+/* ================================================================
+   SECTION COMPÉTENCES
+   ================================================================ */
+
+html:not(.mode-jour) .skill-card {
+  border: 2px solid rgba(234,179,8,0.40) !important;
+  box-shadow: 3px 3px 0px rgba(234,179,8,0.20) !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease !important;
+}
+html:not(.mode-jour) .skill-card:hover {
+  border-color: rgba(234,179,8,0.85) !important;
+  box-shadow: 5px 5px 0px rgba(234,179,8,0.50) !important;
+  transform: translate(-2px,-2px) !important;
+}
+html:not(.mode-jour) .skill-card__header { border-bottom-color: rgba(234,179,8,0.30) !important; }
+html:not(.mode-jour) .skill-card__name   { color: #cce0ef !important; }
+
+/* Icônes skill cards — brightness pour vraies couleurs marque */
+html:not(.mode-jour) .skill-card--system .skill-card__icon i,
+html:not(.mode-jour) .skill-card--network .skill-card__icon i,
+html:not(.mode-jour) .skill-card--security .skill-card__icon i,
+html:not(.mode-jour) .skill-card--dev .skill-card__icon i {
+  filter: brightness(1.2) saturate(1.1) !important;
+  opacity: 1 !important;
+}
+
+html:not(.mode-jour) .skill-card--system   .skill-card__icon   { background: rgba(234,179,8,0.11) !important; }
+html:not(.mode-jour) .skill-card--system   .skill-card__domain { color: #eab308 !important; }
+html:not(.mode-jour) .skill-card--system   .skill-card__bar-fill { background: #eab308 !important; box-shadow: 0 0 8px rgba(234,179,8,0.40) !important; }
+
+html:not(.mode-jour) .skill-card--network  .skill-card__icon   { background: rgba(223,240,251,0.09) !important; }
+html:not(.mode-jour) .skill-card--network  .skill-card__domain { color: #dff0fb !important; }
+html:not(.mode-jour) .skill-card--network  .skill-card__bar-fill { background: #dff0fb !important; box-shadow: 0 0 8px rgba(223,240,251,0.40) !important; }
+
+html:not(.mode-jour) .skill-card--security .skill-card__icon   { background: rgba(234,179,8,0.09) !important; }
+html:not(.mode-jour) .skill-card--security .skill-card__domain { color: #eab308 !important; }
+html:not(.mode-jour) .skill-card--security .skill-card__bar-fill { background: #eab308 !important; box-shadow: 0 0 8px rgba(234,179,8,0.40) !important; }
+
+html:not(.mode-jour) .skill-card--dev      .skill-card__icon   { background: rgba(200,223,240,0.08) !important; }
+html:not(.mode-jour) .skill-card--dev      .skill-card__domain { color: #e8f4fc !important; }
+html:not(.mode-jour) .skill-card--dev      .skill-card__bar-fill { background: #c8dff0 !important; box-shadow: 0 0 6px rgba(200,223,240,0.35) !important; }
+
+html:not(.mode-jour) .level-badge--beginner     { background: rgba(223,240,251,0.08) !important; color: #e8f4fc !important; border-color: rgba(223,240,251,0.30) !important; }
+html:not(.mode-jour) .level-badge--intermediate { background: rgba(234,179,8,0.10)   !important; color: #eab308 !important; border-color: rgba(234,179,8,0.40)   !important; }
+html:not(.mode-jour) .level-badge--advanced     { background: rgba(223,240,251,0.12) !important; color: #dff0fb !important; border-color: rgba(223,240,251,0.55) !important; box-shadow: 0 0 8px rgba(223,240,251,0.15) !important; }
+
+/* Fond de la barre de progression (piste) */
+html:not(.mode-jour) .progress-bar__fill {
+  background: rgba(223, 240, 251, 0.08) !important;
+}
+/* Remplissage de la barre — gradient blanc-bleu → or */
+html:not(.mode-jour) .progress-bar__fill::after {
+  background: linear-gradient(90deg, #dff0fb, #eab308) !important;
+  box-shadow: 0 0 6px rgba(234, 179, 8, 0.35) !important;
+}
+
+/* Stat-items À Propos (28, 1A, SISR) */
+html:not(.mode-jour) .stat-item__value {
+  color: #dff0fb !important;
+  text-shadow: 0 0 14px rgba(223, 240, 251, 0.55) !important;
+}
+html:not(.mode-jour) .stat-item__label {
+  color: rgba(168, 200, 224, 0.60) !important;
+}
+
+html:not(.mode-jour) .table-wrapper {
+  border: 2px solid rgba(223, 240, 251, 0.28) !important;
+  box-shadow: 3px 3px 0px rgba(223, 240, 251, 0.25) !important;
+}
+
+html:not(.mode-jour) .filter-btn {
+  color: rgba(223, 240, 251, 0.50) !important;
+  border: 1px solid rgba(223, 240, 251, 0.18) !important;
+  background: transparent !important;
+}
+html:not(.mode-jour) .filter-btn--active {
+  background: #dff0fb !important;
+  color: #06080c !important;
+  border-color: #dff0fb !important;
+  box-shadow: 3px 3px 0px rgba(223, 240, 251, 0.55) !important;
+}
+html:not(.mode-jour) .filter-btn:hover {
+  color: #eab308 !important;
+  border-color: rgba(234, 179, 8, 0.65) !important;
+}
+
+/* ================================================================
+   SECTION PROJETS
+   ================================================================ */
+
+html:not(.mode-jour) .project-card {
+  border: 2px solid rgba(234,179,8,0.40) !important;
+  box-shadow: 4px 4px 0px rgba(234,179,8,0.20) !important;
+}
+html:not(.mode-jour) .project-card:hover {
+  border-color: rgba(234,179,8,0.70) !important;
+  box-shadow: 6px 6px 0px rgba(234,179,8,0.50) !important;
+}
+html:not(.mode-jour) .project-card__number {
+  color: rgba(234, 179, 8, 0.75);
+  text-shadow: 0 0 20px rgba(234, 179, 8, 0.50);
+}
+
+html:not(.mode-jour) .project-tag {
+  color: #eab308 !important;
+  border-color: rgba(234,179,8,0.45) !important;
+  background: rgba(234,179,8,0.05) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+html:not(.mode-jour) .project-tag--highlight {
+  color: #eab308 !important;
+  border-color: rgba(234,179,8,0.48) !important;
+  background: rgba(234,179,8,0.07) !important;
+  box-shadow: 2px 2px 0px rgba(234,179,8,0.22) !important;
+}
+html:not(.mode-jour) .project-tag i {
+  font-size: 13px !important;
+  filter: brightness(1.2) saturate(1.1) !important;
+  opacity: 1 !important;
+}
+
+html:not(.mode-jour) .project-tech-list li {
+  color: #e8f4fc !important;
+  opacity: 1 !important;
+  font-size: var(--fs-xs);
+  display: flex;
+  align-items: center;
+}
+html:not(.mode-jour) .project-tech-list li i {
+  font-size: 15px !important;
+  margin-right: 5px !important;
+  filter: brightness(1.15) !important;
+  color: inherit !important;
+}
+
+html:not(.mode-jour) .project-link {
+  color: #eab308 !important;
+  text-shadow: 0 0 8px rgba(234,179,8,0.35) !important;
+  font-weight: 700;
+}
+html:not(.mode-jour) .project-link:hover {
+  color: #fcd34d !important;
+  text-shadow: 0 0 14px rgba(234,179,8,0.65) !important;
+}
+
+/* ================================================================
+   SECTION VEILLE
+   ================================================================ */
+
+html:not(.mode-jour) .watch-card {
+  border: 2px solid rgba(223, 240, 251, 0.28) !important;
+  box-shadow: 3px 3px 0px rgba(223, 240, 251, 0.30) !important;
+}
+html:not(.mode-jour) .watch-card:hover {
+  border-color: rgba(234, 179, 8, 0.65) !important;
+  box-shadow: 5px 5px 0px rgba(234, 179, 8, 0.50) !important;
+  transform: translate(-2px, -2px) !important;
+}
+html:not(.mode-jour) .watch-card__icon  { color: #eab308 !important; text-shadow: 0 0 12px rgba(234, 179, 8, 0.55) !important; }
+html:not(.mode-jour) .watch-card__topic { color: #dff0fb !important; text-shadow: 0 0 12px rgba(223, 240, 251, 0.40) !important; }
+html:not(.mode-jour) .watch-news-item__date  { color: #eab308 !important; }
+html:not(.mode-jour) .watch-sources-list li::before { color: #eab308 !important; }
+html:not(.mode-jour) .watch-sources-list a       { color: #e8f4fc !important; }
+html:not(.mode-jour) .watch-sources-list a:hover { color: #dff0fb !important; }
+
+/* ================================================================
+   SECTION E5 / E6
+   ================================================================ */
+
+html:not(.mode-jour) .exam-info-card {
+  border: 2px solid rgba(234, 179, 8, 0.40) !important;
+  box-shadow: 4px 4px 0px rgba(234, 179, 8, 0.20) !important;
+}
+html:not(.mode-jour) .exam-info-card:hover {
+  border-color: rgba(234, 179, 8, 0.60) !important;
+  box-shadow: 6px 6px 0px rgba(234, 179, 8, 0.50) !important;
+  transform: translate(-2px, -2px) !important;
+}
+html:not(.mode-jour) .exam-badge--e5 {
+  background: rgba(234,179,8,0.08) !important;
+  border: 2px solid #eab308 !important;
+  color: #eab308 !important;
+  box-shadow: 4px 4px 0px rgba(234,179,8,0.35) !important;
+  text-shadow: 0 0 12px rgba(234,179,8,0.55) !important;
+}
+html:not(.mode-jour) .exam-badge--e6 {
+  background: rgba(234,179,8,0.08) !important;
+  border: 2px solid #eab308 !important;
+  color: #eab308 !important;
+  box-shadow: 4px 4px 0px rgba(234,179,8,0.40) !important;
+  text-shadow: 0 0 12px rgba(234,179,8,0.55) !important;
+}
+html:not(.mode-jour) .exam-situations__title {
+  border-top-color: rgba(223,240,251,0.18) !important;
+  color: #e8f4fc !important;
+}
+html:not(.mode-jour) .exam-info-card__subtitle { color: #dff0fb !important; }
+
+html:not(.mode-jour) .exam-situation-item__num {
+  border: 2px solid rgba(234,179,8,0.60) !important;
+  color: #eab308 !important;
+  background: rgba(234,179,8,0.06) !important;
+  box-shadow: 2px 2px 0px rgba(234,179,8,0.25) !important;
+}
+html:not(.mode-jour) .exam-section--e6 .exam-situation-item__num {
+  border-color: rgba(234,179,8,0.60) !important;
+  color: #eab308 !important;
+  background: rgba(234,179,8,0.06) !important;
+  box-shadow: 2px 2px 0px rgba(234,179,8,0.30) !important;
+}
+
+/* ================================================================
+   SECTION CONTACT
+   ================================================================ */
+
+/* Fond radial contact — remplace le cyan #00f5ff de base */
+html:not(.mode-jour) .contact-section::before {
+  background: radial-gradient(
+    ellipse 80% 60% at 50% 100%,
+    rgba(223, 240, 251, 0.03) 0%,
+    transparent 70%
+  ) !important;
+}
+
+html:not(.mode-jour) .contact-method__icon {
+  color: #eab308 !important;
+  text-shadow: 0 0 10px rgba(234, 179, 8, 0.55) !important;
+}
+html:not(.mode-jour) .contact-method:hover .contact-method__value {
+  color: #eab308 !important;
+  text-shadow: 0 0 8px rgba(234, 179, 8, 0.35) !important;
+}
+
+html:not(.mode-jour) .contact-form-wrapper {
+  border: 2px solid rgba(234,179,8,0.45) !important;
+  box-shadow:
+    5px 5px 0px rgba(234,179,8,0.25),
+    0 0 40px rgba(234,179,8,0.06) !important;
+}
+html:not(.mode-jour) .contact-form__legend {
+  color: #eab308 !important;
+  text-shadow: 0 0 12px rgba(234,179,8,0.40) !important;
+}
+html:not(.mode-jour) .form-label {
+  color: #eab308 !important;
+  opacity: 0.90;
+  letter-spacing: 0.12em;
+}
+html:not(.mode-jour) .form-input {
+  border: 2px solid rgba(234,179,8,0.40) !important;
+  background: rgba(8,16,28,0.65) !important;
+  color: #dff0fb !important;
+  border-radius: var(--radius-md);
+}
+html:not(.mode-jour) .form-input::placeholder { color: rgba(168,200,224,0.38) !important; }
+html:not(.mode-jour) .form-input:focus {
+  border-color: #eab308 !important;
+  background: rgba(234,179,8,0.03) !important;
+  box-shadow:
+    0 0 0 3px rgba(234,179,8,0.18),
+    3px 3px 0px rgba(234,179,8,0.40) !important;
+}
+
+html:not(.mode-jour) .contact-form-wrapper .btn--primary {
+  background: #eab308 !important;
+  color: #06080c !important;
+  border: 2px solid #eab308 !important;
+  box-shadow: 4px 4px 0px rgba(234, 179, 8, 0.60) !important;
+  font-weight: 700;
+}
+html:not(.mode-jour) .contact-form-wrapper .btn--primary:hover {
+  background: #fcd34d !important;
+  border-color: #fcd34d !important;
+  box-shadow: 6px 6px 0px rgba(234, 179, 8, 0.80) !important;
+  transform: translate(-2px, -2px);
+}
+
+/* ================================================================
+   TIMELINE / PARCOURS
+   ================================================================ */
+
+html:not(.mode-jour) .timeline-item__line {
+  background: linear-gradient(180deg, #dff0fb, rgba(223, 240, 251, 0.08)) !important;
+}
+html:not(.mode-jour) .timeline-item__dot {
+  background: rgba(234, 179, 8, 0.35) !important;
+  border-color: rgba(234, 179, 8, 0.50) !important;
+}
+html:not(.mode-jour) .timeline-tag {
+  color: #eab308 !important;
+  border-color: rgba(234, 179, 8, 0.45) !important;
+  background: rgba(234, 179, 8, 0.05) !important;
+}
+html:not(.mode-jour) .timeline-tag--highlight {
+  color: #eab308 !important;
+  border-color: rgba(234, 179, 8, 0.60) !important;
+  background: rgba(234, 179, 8, 0.10) !important;
+}
+html:not(.mode-jour) .timeline-item__dot--active {
+  background: #eab308 !important;
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.80), 0 0 20px rgba(234, 179, 8, 0.30) !important;
+  border-color: rgba(234, 179, 8, 0.50) !important;
+}
+html:not(.mode-jour) .timeline-item__dot--future {
+  background: transparent !important;
+  border: 2px solid rgba(234, 179, 8, 0.30) !important;
+}
+html:not(.mode-jour) .timeline-item--current .timeline-item__content {
+  border-color: rgba(234, 179, 8, 0.60) !important;
+  box-shadow:
+    6px 6px 0px rgba(234, 179, 8, 0.45),
+    0 0 20px rgba(234, 179, 8, 0.08) !important;
+}
+html:not(.mode-jour) .timeline-item__school-icon { color: #eab308 !important; }
+html:not(.mode-jour) .timeline-item__school      { color: #e8f4fc !important; }
+html:not(.mode-jour) .timeline-item__badge {
+  background: #eab308 !important;
+  color: #06080c !important;
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.50) !important;
+}
+
+/* ================================================================
+   CERTIFICATIONS
+   ================================================================ */
+
+/* ---- Bordures cards — cohérence or/blanc-bleu selon statut ---- */
+html:not(.mode-jour) .cert-card {
+  border: 2px solid rgba(234,179,8,0.30) !important;
+  box-shadow: 4px 4px 0px rgba(234,179,8,0.18) !important;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s !important;
+}
+html:not(.mode-jour) .cert-card:hover {
+  transform: translate(-2px,-2px) !important;
+  box-shadow: 6px 6px 0px rgba(234,179,8,0.55) !important;
+  border-color: rgba(234,179,8,0.85) !important;
+}
+html:not(.mode-jour) .cert-card--obtained {
+  border: 2px solid rgba(234,179,8,0.65) !important;
+  box-shadow: 4px 4px 0px rgba(234,179,8,0.40), 0 0 20px rgba(234,179,8,0.06) !important;
+}
+html:not(.mode-jour) .cert-card--progress {
+  border-color: rgba(223,240,251,0.45) !important;
+  box-shadow: 4px 4px 0px rgba(223,240,251,0.22) !important;
+}
+html:not(.mode-jour) .cert-card--planned {
+  border-color: rgba(223,240,251,0.22) !important;
+  box-shadow: 3px 3px 0px rgba(223,240,251,0.12) !important;
+}
+html:not(.mode-jour) .cert-card__logo {
+  font-size: var(--fs-sm) !important;
+  border-width: 2px !important;
+}
+html:not(.mode-jour) .cert-card__footer   { border-top-color: rgba(234,179,8,0.15) !important; }
+html:not(.mode-jour) .cert-card__link     { color: #eab308 !important; }
+html:not(.mode-jour) .cert-card__link:hover { color: #fcd34d !important; text-shadow: 0 0 8px rgba(234,179,8,0.50) !important; }
+html:not(.mode-jour) .cert-card__progress-fill {
+  background: linear-gradient(90deg, #dff0fb, #eab308) !important;
+  box-shadow: 0 0 6px rgba(234, 179, 8, 0.40) !important;
+}
+
+html:not(.mode-jour) .cert-inline-card {
+  border: 2px solid rgba(234,179,8,0.35) !important;
+  box-shadow: 3px 3px 0px rgba(234,179,8,0.25) !important;
+}
+html:not(.mode-jour) .cert-inline-card:hover {
+  border-color: rgba(234,179,8,0.80) !important;
+  box-shadow: 5px 5px 0px rgba(234,179,8,0.55) !important;
+  transform: translate(-2px, -2px) !important;
+}
+
+/* ---- Badges statut ---- */
+html:not(.mode-jour) body .cert-status--obtained,
+html:not(.mode-jour) .cert-card .cert-status--obtained,
+html:not(.mode-jour) .certs-grid .cert-status--obtained {
+  background: rgba(234,179,8,0.18) !important;
+  color: #eab308 !important;
+  border: 1px solid rgba(234,179,8,0.65) !important;
+  box-shadow: 2px 2px 0px rgba(234,179,8,0.35) !important;
+}
+html:not(.mode-jour) body .cert-status--progress,
+html:not(.mode-jour) .cert-card .cert-status--progress,
+html:not(.mode-jour) .certs-grid .cert-status--progress {
+  background: rgba(223,240,251,0.10) !important;
+  color: #dff0fb !important;
+  border: 1px solid rgba(223,240,251,0.55) !important;
+  box-shadow: 2px 2px 0px rgba(223,240,251,0.18) !important;
+}
+html:not(.mode-jour) body .cert-status--planned,
+html:not(.mode-jour) .cert-card .cert-status--planned,
+html:not(.mode-jour) .certs-grid .cert-status--planned {
+  background: rgba(223,240,251,0.07) !important;
+  color: #e8f4fc !important;
+  border: 1px solid rgba(223,240,251,0.30) !important;
+}
+
+/* ---- Logos : vraies couleurs de marque ---- */
+html:not(.mode-jour) .cert-card__logo--pix,
+html:not(.mode-jour) .cert-card .cert-card__logo--pix,
+body html:not(.mode-jour) .cert-card__logo--pix {
+  background: #1a1a2e !important;
+  color: #3bdf6f !important;
+  border-color: rgba(59,223,111,0.55) !important;
+  box-shadow: 2px 2px 0px rgba(59,223,111,0.25), 0 0 12px rgba(59,223,111,0.12) !important;
+}
+html:not(.mode-jour) .cert-card__logo--cisco,
+html:not(.mode-jour) .cert-card .cert-card__logo--cisco {
+  background: #1c1c1c !important;
+  color: #1ba0d7 !important;
+  border-color: rgba(27,160,215,0.55) !important;
+  box-shadow: 2px 2px 0px rgba(27,160,215,0.25), 0 0 12px rgba(27,160,215,0.10) !important;
+}
+html:not(.mode-jour) .cert-card__logo--comptia,
+html:not(.mode-jour) .cert-card .cert-card__logo--comptia {
+  background: rgba(234,179,8,0.10) !important;
+  color: #eab308 !important;
+  border-color: rgba(234,179,8,0.50) !important;
+  box-shadow: 2px 2px 0px rgba(234,179,8,0.28) !important;
+}
+html:not(.mode-jour) .cert-card__logo--ccna,
+html:not(.mode-jour) .cert-card .cert-card__logo--ccna,
+body html:not(.mode-jour) .cert-card__logo--ccna {
+  background: #1c1c1c !important;
+  color: #1ba0d7 !important;
+  border-color: rgba(27,160,215,0.45) !important;
+  box-shadow: 2px 2px 0px rgba(27,160,215,0.20) !important;
+}
+
+/* ================================================================
+   FOOTER
+   ================================================================ */
+
+html:not(.mode-jour) .site-footer       { border-top-color: rgba(223, 240, 251, 0.18) !important; }
+html:not(.mode-jour) .footer-bottom     { border-top-color: rgba(223, 240, 251, 0.12) !important; }
+html:not(.mode-jour) .footer-logo__bracket { color: #eab308 !important; text-shadow: 0 0 12px rgba(234, 179, 8, 0.55) !important; }
+html:not(.mode-jour) .footer-kanji      { color: rgba(223, 240, 251, 0.20) !important; }
+html:not(.mode-jour) .footer-github     { color: #eab308 !important; }
+html:not(.mode-jour) .footer-github:hover { color: #fcd34d !important; text-shadow: 0 0 10px rgba(234,179,8,0.55) !important; }
+
+/* ================================================================
+   EASTER EGG KONAMI
+   ================================================================ */
+
+/* Toast adapté à la palette nuit */
+html:not(.mode-jour) .konami-toast {
+  background: rgba(4, 8, 14, 0.96) !important;
+  border-color: #eab308 !important;
+  color: #eab308 !important;
+  text-shadow: 0 0 10px rgba(234, 179, 8, 0.65) !important;
+  box-shadow: 0 0 30px rgba(234, 179, 8, 0.20), 4px 4px 0px rgba(234, 179, 8, 0.35) !important;
+}
+html:not(.mode-jour) .konami-toast span { color: #dff0fb !important; }
+
+/* ================================================================
+   KEYFRAMES MANQUANTS — Curseur manga (mode jour)
+   Utilisés par initMangaCursor() dans script.js via style.cssText inline
+   ================================================================ */
+
+@keyframes mangaInkFade {
+  0%   { opacity: 0.8; transform: translate(-50%, -50%) scale(1);   }
+  100% { opacity: 0;   transform: translate(-50%, -50%) scale(1.8); }
+}
+
+@keyframes mangaSplash {
+  0%   { opacity: 0.9; transform: translate(-50%, -50%) scale(1);   }
+  100% { opacity: 0;   transform: translate(-50%, -50%) scale(2.2); }
+}
+
+/* ================================================================
+   MODE NUIT — Vraies couleurs de marque des icônes projets
+   ================================================================ */
+html:not(.mode-jour) .project-tag .si-linux,
+html:not(.mode-jour) .project-tech-list .si-linux   { color: #FCC624 !important; }
+
+html:not(.mode-jour) .project-tag .si-apache,
+html:not(.mode-jour) .project-tech-list .si-apache  { color: #D22128 !important; }
+
+html:not(.mode-jour) .project-tag .si-pfsense,
+html:not(.mode-jour) .project-tech-list .si-pfsense { color: #212121 !important; filter: invert(1) brightness(1.5) !important; }
+
+html:not(.mode-jour) .project-tag .si-mariadb,
+html:not(.mode-jour) .project-tech-list .si-mariadb { color: #003545 !important; filter: invert(1) brightness(1.5) !important; }
+
+html:not(.mode-jour) .project-tag .si-php,
+html:not(.mode-jour) .project-tech-list .si-php     { color: #777BB4 !important; }
+
+html:not(.mode-jour) .project-tag .si-windows,
+html:not(.mode-jour) .project-tech-list .si-windows { color: #0078D4 !important; }
+
+html:not(.mode-jour) .project-tag .si-debian,
+html:not(.mode-jour) .project-tech-list .si-debian  { color: #A81D33 !important; }
+
+html:not(.mode-jour) .project-tag .si-git,
+html:not(.mode-jour) .project-tech-list .si-git     { color: #F05032 !important; }
+
+/* ================================================================
+   MOBILE — Corrections spécifiques (max-width: 639px)
+   ================================================================ */
+
+@media (max-width: 639px) {
+
+  .hero-terminal { display: none !important; }
+
+  .hero-title { font-size: clamp(2.2rem, 10vw, 3rem) !important; }
+
+  .hero-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: var(--space-3) !important;
+  }
+  .hero-actions .btn {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .nav-logo__kanji { display: none !important; }
+
+  .about-grid {
+    grid-template-columns: 1fr !important;
+    text-align: center !important;
+  }
+  .about-stats { justify-content: center !important; }
+
+  .skills-cards-grid { grid-template-columns: 1fr !important; }
+  .projects-grid     { grid-template-columns: 1fr !important; }
+  .watch-grid        { grid-template-columns: 1fr !important; }
+  .contact-grid      { grid-template-columns: 1fr !important; }
+  .certs-inline__grid { grid-template-columns: 1fr !important; }
+
+  .cert-inline-card {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: var(--space-2) !important;
+  }
+
+  .section-container {
+    padding-left: var(--space-4) !important;
+    padding-right: var(--space-4) !important;
+  }
+
+  .section-title { font-size: clamp(1.4rem, 6vw, 2rem) !important; }
+
+  .exam-synthesis-table { overflow-x: auto !important; }
+  .exam-synthesis-img   { width: 100% !important; }
+
+  .footer-top { text-align: center !important; }
+
+  /* Kanjis : bien visibles, dans le viewport, pas coupés */
+  .kanji-float--1 { font-size: 24vw !important; top: 3% !important;  left: 2% !important;  opacity: 0.10 !important; }
+  .kanji-float--2 { font-size: 28vw !important; top: 42% !important; right: 2% !important; opacity: 0.10 !important; }
+  .kanji-float--3 { font-size: 18vw !important; bottom: 6% !important; left: 4% !important; opacity: 0.10 !important; }
+  .kanji-float--4 { font-size: 22vw !important; top: 20% !important; left: 58% !important; opacity: 0.10 !important; }
+}
+
+/* ================================================================
+   ANIMATIONS MODE NUIT — Ajouts
+   1. Néon pulsant sur les cartes
+   2. Flicker sur les titres de section
+   3. Ripple néon au clic du curseur
+   ================================================================ */
+
+/* ----------------------------------------------------------------
+   1. NÉON PULSANT — project-card, watch-card, skill-card
+   Pulse douce de la box-shadow en mode nuit (respiration)
+   ---------------------------------------------------------------- */
+@keyframes neon-breathe {
+  0%, 100% {
+    box-shadow:
+      0 0 4px rgba(168, 204, 224, 0.10),
+      0 0 12px rgba(168, 204, 224, 0.06),
+      inset 0 0 0 1px rgba(168, 204, 224, 0.08);
+  }
+  50% {
+    box-shadow:
+      0 0 14px rgba(168, 204, 224, 0.32),
+      0 0 30px rgba(168, 204, 224, 0.14),
+      inset 0 0 0 1px rgba(168, 204, 224, 0.20);
+  }
+}
+
+@keyframes neon-breathe-yellow {
+  0%, 100% {
+    box-shadow:
+      0 0 4px rgba(234, 179, 8, 0.08),
+      0 0 12px rgba(234, 179, 8, 0.04),
+      inset 0 0 0 1px rgba(234, 179, 8, 0.06);
+  }
+  50% {
+    box-shadow:
+      0 0 14px rgba(234, 179, 8, 0.30),
+      0 0 30px rgba(234, 179, 8, 0.12),
+      inset 0 0 0 1px rgba(234, 179, 8, 0.18);
+  }
+}
+
+html:not(.mode-jour) .project-card {
+  animation: neon-breathe 3.5s ease-in-out infinite;
+}
+html:not(.mode-jour) .project-card:nth-child(2) { animation-delay: -1.2s; }
+html:not(.mode-jour) .project-card:nth-child(3) { animation-delay: -2.4s; }
+html:not(.mode-jour) .project-card:nth-child(4) { animation-delay: -0.7s; }
+html:not(.mode-jour) .project-card:nth-child(5) { animation-delay: -1.9s; }
+html:not(.mode-jour) .project-card:nth-child(6) { animation-delay: -3.0s; }
+
+/* Pause du pulse au survol (on laisse le hover natif prendre le relais) */
+html:not(.mode-jour) .project-card:hover {
+  animation-play-state: paused;
+}
+
+/* ----------------------------------------------------------------
+   Border trace néon — lumière qui parcourt le contour au survol
+
+   Stratégie de compatibilité :
+   - Chrome/Edge/Safari : @property + conic-gradient animé (trace rotative)
+   - Firefox fallback   : box-shadow pulse (Firefox ne supporte pas @property)
+   ---------------------------------------------------------------- */
+
+/* -- Fallback Firefox -- */
+@supports not (animation-timeline: scroll()) {
+  @keyframes border-glow-firefox {
+    0%, 100% {
+      box-shadow:
+        0 0 0 1px rgba(168, 204, 224, 0.25),
+        0 0 8px rgba(168, 204, 224, 0.15),
+        0 0 20px rgba(168, 204, 224, 0.06);
+    }
+    50% {
+      box-shadow:
+        0 0 0 1px rgba(168, 204, 224, 0.75),
+        0 0 16px rgba(168, 204, 224, 0.45),
+        0 0 36px rgba(168, 204, 224, 0.20);
+    }
+  }
+
+  html:not(.mode-jour) .project-card:hover {
+    animation: border-glow-firefox 1.4s ease-in-out infinite !important;
+  }
+
+  html:not(.mode-jour) .project-card:hover::before {
+    display: none;
+  }
+}
+
+/* -- Version principale : Chrome / Edge / Safari -- */
+@property --border-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes border-trace {
+  0%   { --border-angle: 0deg; }
+  100% { --border-angle: 360deg; }
+}
+
+html:not(.mode-jour) .project-card {
+  --border-angle: 0deg;
+  position: relative;
+}
+
+html:not(.mode-jour) .project-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent 0%,
+    transparent 60%,
+    rgba(168, 204, 224, 0.9) 75%,
+    rgba(200, 223, 240, 1) 80%,
+    rgba(168, 204, 224, 0.9) 85%,
+    transparent 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  pointer-events: none;
+}
+
+html:not(.mode-jour) .project-card:hover::before {
+  opacity: 1;
+  animation: border-trace 2s linear infinite;
+}
+}
+
+html:not(.mode-jour) .watch-card {
+  animation: neon-breathe 4s ease-in-out infinite;
+}
+html:not(.mode-jour) .watch-card:nth-child(2) { animation-delay: -1.5s; }
+html:not(.mode-jour) .watch-card:nth-child(3) { animation-delay: -3.0s; }
+
+html:not(.mode-jour) .cert-card {
+  animation: neon-breathe-yellow 4.5s ease-in-out infinite !important;
+}
+html:not(.mode-jour) .cert-card:nth-child(2) { animation-delay: -1.8s !important; }
+html:not(.mode-jour) .cert-card:nth-child(3) { animation-delay: -3.3s !important; }
+
+
+
+/* ----------------------------------------------------------------
+   3. RIPPLE NÉON — cercles qui irradient au clic du curseur
+   Injecté via JS (.cursor-ripple), animé ici en CSS
+   ---------------------------------------------------------------- */
+@keyframes ripple-neon {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+}
+
+.cursor-ripple {
+  position: fixed;
+  pointer-events: none;
+  border-radius: 50%;
+  z-index: 9996;
+  animation: ripple-neon 0.6s ease-out forwards;
+}
+
+.cursor-ripple--1 {
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid rgba(168, 204, 224, 0.9);
+  box-shadow: 0 0 8px rgba(168, 204, 224, 0.5), inset 0 0 8px rgba(168, 204, 224, 0.2);
+}
+.cursor-ripple--2 {
+  width: 70px;
+  height: 70px;
+  border: 1px solid rgba(168, 204, 224, 0.5);
+  box-shadow: 0 0 12px rgba(168, 204, 224, 0.3);
+  animation-delay: 0.08s;
+  animation-duration: 0.75s;
+}
+.cursor-ripple--3 {
+  width: 100px;
+  height: 100px;
+  border: 0.5px solid rgba(168, 204, 224, 0.25);
+  animation-delay: 0.18s;
+  animation-duration: 0.9s;
+}
+
+/* En mode jour : pas de ripple néon (la plume a ses propres effets) */
+html.mode-jour .cursor-ripple { display: none; }
+

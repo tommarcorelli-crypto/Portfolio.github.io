@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fiche de Réalisation — Active Directory | Tom Marcorelli</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <style>
+    /* ================================================================
+       VARIABLES — reprise exacte du mode nuit du portfolio
+    ================================================================ */
+    :root {
+      --color-bg-primary:    #06080a;
+      --color-bg-secondary:  #090c0f;
+      --color-bg-card:       #0f1a22;
+      --color-bg-card-hover: #152030;
+      --color-neon-cyan:     #dff0fb;
+      --color-neon-gold:     #eab308;
+      --color-text-primary:  #ddeef8;
+      --color-text-secondary:#a8c4d8;
+      --color-text-muted:    #5a7a8a;
+      --color-border:        rgba(223,240,251,0.20);
+      --color-border-strong: rgba(223,240,251,0.65);
+      --font-display: 'Orbitron', sans-serif;
+      --font-japanese:'Noto Sans JP', sans-serif;
+      --font-mono:    'Share Tech Mono', monospace;
+      --glow-cyan:    0 0 8px rgba(223,240,251,0.8), 0 0 24px rgba(223,240,251,0.30), 0 0 60px rgba(223,240,251,0.10);
+      --glow-gold:    0 0 8px rgba(234,179,8,0.8),   0 0 24px rgba(234,179,8,0.30),   0 0 60px rgba(234,179,8,0.10);
+      --glow-text:    0 0 14px rgba(223,240,251,0.85), 0 0 40px rgba(223,240,251,0.25);
+      --shadow-pixel: 4px 4px 0px rgba(223,240,251,0.50);
+      --shadow-pixel-hover: 6px 6px 0px rgba(234,179,8,0.70);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+    }
+
+    /* ================================================================
+       RESET & BASE
+    ================================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; background-color: var(--color-bg-primary); }
+    body {
+      font-family: var(--font-japanese);
+      font-size: 1rem;
+      line-height: 1.8;
+      color: var(--color-text-primary);
+      background-color: transparent;
+      overflow-x: hidden;
+    }
+    a { color: var(--color-neon-cyan); text-decoration: none; }
+    a:hover { color: #fff; }
+    ul { list-style: none; }
+
+    /* ================================================================
+       FOND ANIMÉ (grille néon)
+    ================================================================ */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      z-index: -3;
+      background-image:
+        linear-gradient(rgba(223,240,251,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(223,240,251,0.035) 1px, transparent 1px);
+      background-size: 50px 50px;
+      animation: grid-scroll 20s linear infinite;
+    }
+    @keyframes grid-scroll {
+      from { background-position: 0 0; }
+      to   { background-position: 0 50px; }
+    }
+
+    /* ================================================================
+       NAV (sticky, glassmorphism)
+    ================================================================ */
+    .site-header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 70px;
+      z-index: 1000;
+      background: rgba(5,8,16,0.75);
+      backdrop-filter: blur(16px);
+    }
+    .site-header::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 8%; right: 8%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(223,240,251,0.40) 25%, rgba(234,179,8,0.30) 50%, rgba(223,240,251,0.40) 75%, transparent);
+    }
+    .nav-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.125rem;
+      color: var(--color-text-primary);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+    }
+    .nav-logo__bracket { color: #eab308; text-shadow: 0 0 10px rgba(234,179,8,0.65); }
+    .nav-logo__name    { color: #dff0fb; text-shadow: 0 0 8px rgba(223,240,251,0.40); letter-spacing: 0.08em; }
+    .nav-logo__kanji   { font-family: var(--font-japanese); font-size: 0.75rem; color: rgba(234,179,8,0.55); margin-left: 0.5rem; }
+
+    .nav-back {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      color: rgba(223,240,251,0.75);
+      border: 1.5px solid rgba(223,240,251,0.28);
+      padding: 6px 16px;
+      border-radius: var(--radius-sm);
+      box-shadow: 2px 2px 0 rgba(223,240,251,0.20);
+      transition: all 0.15s ease;
+    }
+    .nav-back:hover {
+      color: #eab308;
+      border-color: rgba(234,179,8,0.6);
+      box-shadow: 4px 4px 0 rgba(234,179,8,0.40);
+    }
+
+    /* ================================================================
+       LAYOUT COMMUN
+    ================================================================ */
+    .section-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+    .section { padding: 5rem 0; }
+
+    /* EN-TÊTES DE SECTION — copie exacte du portfolio */
+    .section-header { margin-bottom: 3rem; text-align: center; }
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      color: #eab308;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.1em;
+      text-shadow: 0 0 12px rgba(234,179,8,0.50);
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 1.875rem;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      color: var(--color-text-primary);
+      display: inline-flex;
+      align-items: baseline;
+      gap: 1rem;
+      text-shadow: 0 0 20px rgba(221,238,248,0.50);
+    }
+    .section-title__kanji {
+      font-family: var(--font-japanese);
+      font-size: 1rem;
+      color: #dff0fb;
+      font-weight: 300;
+      opacity: 0.75;
+    }
+    .section-divider {
+      width: 80px;
+      height: 2px;
+      margin: 1rem auto 0;
+      background: linear-gradient(90deg, transparent, #eab308, transparent);
+      box-shadow: 0 0 10px rgba(234,179,8,0.50), 0 0 30px rgba(234,179,8,0.15);
+    }
+
+    /* ================================================================
+       HERO — adapté fiche de réalisation
+    ================================================================ */
+    .hero-section {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-top: 70px;
+      position: relative;
+      overflow: hidden;
+      gap: 4rem;
+      flex-wrap: wrap;
+    }
+
+    /* kanjis flottants décoratifs */
+    .hero-kanji-deco { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+    .kanji-float {
+      position: absolute;
+      font-family: var(--font-japanese);
+      font-weight: 700;
+      color: rgba(223,240,251,0.04);
+      user-select: none;
+      animation: kanji-drift 14s ease-in-out infinite;
+    }
+    .kanji-float--1 { font-size: 180px; top: 5%;  left: 2%;  animation-delay: 0s; }
+    .kanji-float--2 { font-size: 120px; top: 60%; left: 75%; animation-delay: -4s; }
+    .kanji-float--3 { font-size: 220px; top: 20%; left: 55%; animation-delay: -8s; opacity: 0.6; }
+    .kanji-float--4 { font-size: 90px;  top: 75%; left: 10%; animation-delay: -3s; }
+    @keyframes kanji-drift {
+      0%, 100% { transform: translateY(0) rotate(-3deg); }
+      50%       { transform: translateY(-20px) rotate(3deg); }
+    }
+
+    .hero-content { position: relative; z-index: 1; max-width: 560px; }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: 1px solid rgba(234,179,8,0.45);
+      padding: 5px 14px;
+      border-radius: 2px;
+      margin-bottom: 1.5rem;
+      background: rgba(234,179,8,0.06);
+    }
+    .hero-badge__dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #eab308;
+      box-shadow: 0 0 8px rgba(234,179,8,0.8);
+      animation: blink 2s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:0.3; } }
+    .hero-badge__text {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: rgba(234,179,8,0.9);
+      letter-spacing: 0.08em;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: 0.04em;
+      margin-bottom: 1rem;
+    }
+    /* Glitch effect */
+    .glitch-text {
+      position: relative;
+      color: var(--color-neon-cyan);
+      text-shadow: var(--glow-text);
+      display: inline-block;
+    }
+    .glitch-text::before,
+    .glitch-text::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      overflow: hidden;
+    }
+    .glitch-text::before {
+      color: #eab308;
+      animation: glitch-1 3.5s infinite linear;
+      clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+    }
+    .glitch-text::after {
+      color: rgba(223,240,251,0.6);
+      animation: glitch-2 4.2s infinite linear;
+      clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+    }
+    @keyframes glitch-1 {
+      0%,93%{ transform:none; opacity:0; }
+      94%{ transform:translate(-2px,1px) skewX(-3deg); opacity:0.7; }
+      96%{ transform:translate(2px,-1px); opacity:0.4; }
+      98%{ transform:none; opacity:0; }
+    }
+    @keyframes glitch-2 {
+      0%,88%{ transform:none; opacity:0; }
+      89%{ transform:translate(3px,-2px); opacity:0.6; }
+      91%{ transform:translate(-2px,1px) skewX(4deg); opacity:0.3; }
+      93%{ transform:none; opacity:0; }
+    }
+    .glitch-text--accent {
+      color: #eab308;
+      text-shadow: var(--glow-gold);
+    }
+
+    .hero-subtitle {
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.06em;
+    }
+    .hero-description {
+      color: var(--color-text-secondary);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+      line-height: 1.7;
+    }
+
+    /* ================================================================
+       TERMINAL HERO
+    ================================================================ */
+    .hero-terminal {
+      position: relative;
+      z-index: 1;
+      background: rgba(6,8,15,0.90);
+      border: 1px solid rgba(223,240,251,0.20);
+      border-radius: var(--radius-md);
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 0 40px rgba(223,240,251,0.05), inset 0 1px 0 rgba(223,240,251,0.08);
+    }
+    .terminal-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 10px 16px;
+      border-bottom: 1px solid rgba(223,240,251,0.12);
+      background: rgba(223,240,251,0.04);
+    }
+    .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .terminal-dot--red    { background: #ff5f57; }
+    .terminal-dot--yellow { background: #febc2e; }
+    .terminal-dot--green  { background: #28c840; }
+    .terminal-title {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      margin-left: 0.5rem;
+    }
+    .terminal-body {
+      padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.9;
+      color: var(--color-text-secondary);
+      min-height: 220px;
+    }
+    .t-prompt { color: #eab308; }
+    .t-cmd    { color: #dff0fb; }
+    .t-ok     { color: #28c840; }
+    .t-info   { color: var(--color-text-muted); }
+    .t-val    { color: #eab308; }
+    .t-cursor {
+      display: inline-block;
+      width: 9px; height: 14px;
+      background: #eab308;
+      animation: cursor-blink 1s step-end infinite;
+      vertical-align: text-bottom;
+      margin-left: 2px;
+    }
+    @keyframes cursor-blink { 0%,100%{ opacity:1; } 50%{ opacity:0; } }
+
+    /* ================================================================
+       CARDS GÉNÉRIQUES
+    ================================================================ */
+    .card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .card:hover {
+      border-color: rgba(223,240,251,0.40);
+      box-shadow: 0 0 20px rgba(223,240,251,0.05);
+    }
+    .card--gold:hover {
+      border-color: rgba(234,179,8,0.45);
+      box-shadow: 0 0 20px rgba(234,179,8,0.08);
+    }
+
+    /* ================================================================
+       SECTION PRÉSENTATION
+    ================================================================ */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    @media(max-width:768px){ .about-grid{ grid-template-columns:1fr; } }
+
+    .about-card-title {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #eab308;
+      text-shadow: var(--glow-gold);
+      margin-bottom: 1rem;
+    }
+
+    .problem-quote {
+      border-left: 3px solid #eab308;
+      padding: 1rem 1.25rem;
+      background: rgba(234,179,8,0.05);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-style: italic;
+      color: var(--color-text-secondary);
+      line-height: 1.7;
+      font-size: 0.95rem;
+    }
+    .problem-quote::before {
+      content: '//';
+      font-family: var(--font-mono);
+      color: #eab308;
+      margin-right: 0.5rem;
+      font-style: normal;
+    }
+
+    /* ================================================================
+       OBJECTIFS — liste pixel
+    ================================================================ */
+    .obj-list { display: flex; flex-direction: column; gap: 0.6rem; }
+    .obj-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: rgba(223,240,251,0.03);
+      border: 1px solid rgba(223,240,251,0.12);
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .obj-item:hover {
+      border-color: rgba(234,179,8,0.35);
+      background: rgba(234,179,8,0.04);
+    }
+    .obj-item__icon {
+      font-family: var(--font-mono);
+      color: #eab308;
+      flex-shrink: 0;
+      margin-top: 2px;
+      text-shadow: var(--glow-gold);
+    }
+
+    /* ================================================================
+       SCHÉMA INFRA
+    ================================================================ */
+    .infra-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    @media(max-width:640px){
+      .infra-grid { grid-template-columns: 1fr; }
+      .infra-link { display: none; }
+    }
+
+    .vm-card {
+      background: var(--color-bg-card);
+      border: 1px solid rgba(223,240,251,0.20);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+    }
+    .vm-card__name {
+      font-family: var(--font-display);
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--color-neon-cyan);
+      text-shadow: var(--glow-text);
+      margin-bottom: 3px;
+    }
+    .vm-card__os {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--color-text-muted);
+      margin-bottom: 1rem;
+      letter-spacing: 0.06em;
+    }
+    .vm-ip {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--color-text-secondary);
+      margin-bottom: 4px;
+    }
+    .vm-ip__dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .vm-ip__dot--cyan { background: #dff0fb; box-shadow: 0 0 6px rgba(223,240,251,0.7); }
+    .vm-ip__dot--gold { background: #eab308; box-shadow: 0 0 6px rgba(234,179,8,0.7); }
+    .vm-ip__dot--green{ background: #28c840; box-shadow: 0 0 6px rgba(40,200,64,0.7); }
+
+    .roles-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 0.75rem; }
+    .role-tag {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      color: #eab308;
+      border: 1px solid rgba(234,179,8,0.45);
+      padding: 2px 8px;
+      border-radius: 2px;
+      background: rgba(234,179,8,0.06);
+      box-shadow: 2px 2px 0 rgba(234,179,8,0.20);
+    }
+
+    /* Lien central infra */
+    .infra-link {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .infra-link__label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      color: #eab308;
+      background: rgba(234,179,8,0.08);
+      border: 1px solid rgba(234,179,8,0.30);
+      padding: 3px 10px;
+      border-radius: 2px;
+      white-space: nowrap;
+    }
+    .infra-link__line {
+      width: 2px;
+      height: 50px;
+      background: linear-gradient(to bottom, rgba(223,240,251,0.5), rgba(234,179,8,0.5));
+      box-shadow: 0 0 6px rgba(223,240,251,0.2);
+    }
+    .infra-link__net {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--color-text-muted);
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    /* ================================================================
+       ÉTAPES (réalisation technique)
+    ================================================================ */
+    .steps-list { display: flex; flex-direction: column; gap: 1.5rem; }
+    .step-card {
+      background: var(--color-bg-card);
+      border: 1px solid rgba(223,240,251,0.15);
+      border-left: 3px solid rgba(234,179,8,0.6);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+    }
+    .step-card__header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .step-card__num {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      color: #eab308;
+      background: rgba(234,179,8,0.08);
+      border: 1px solid rgba(234,179,8,0.40);
+      padding: 3px 10px;
+      border-radius: 2px;
+      box-shadow: 2px 2px 0 rgba(234,179,8,0.25);
+      white-space: nowrap;
+    }
+    .step-card__title {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--color-text-primary);
+      text-shadow: 0 0 10px rgba(223,240,251,0.2);
+    }
+    .step-card p {
+      font-size: 0.9rem;
+      color: var(--color-text-secondary);
+      line-height: 1.8;
+      margin-bottom: 0.75rem;
+    }
+    .step-card p:last-child { margin-bottom: 0; }
+
+    /* Note inline */
+    .note {
+      display: flex;
+      gap: 0.75rem;
+      background: rgba(223,240,251,0.04);
+      border: 1px solid rgba(223,240,251,0.15);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1rem;
+      margin-top: 0.75rem;
+      font-size: 0.82rem;
+      color: var(--color-text-muted);
+    }
+    .note::before {
+      content: '//';
+      font-family: var(--font-mono);
+      color: rgba(223,240,251,0.4);
+      flex-shrink: 0;
+    }
+
+    /* Bloc commande style terminal */
+    .cmd-block {
+      background: rgba(4,6,12,0.8);
+      border: 1px solid rgba(223,240,251,0.12);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1rem;
+      margin-top: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      line-height: 1.8;
+    }
+    .cmd-block .t-prompt { color: #eab308; }
+    .cmd-block .t-val    { color: #dff0fb; }
+    .cmd-block .t-ok     { color: #28c840; }
+    .cmd-block .t-muted  { color: #5a7a8a; }
+
+    /* inline code */
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      background: rgba(223,240,251,0.07);
+      border: 1px solid rgba(223,240,251,0.15);
+      padding: 1px 6px;
+      border-radius: 2px;
+      color: var(--color-neon-cyan);
+    }
+
+    /* ================================================================
+       VALIDATION TABLE
+    ================================================================ */
+    .val-table-wrap {
+      overflow-x: auto;
+      border: 1px solid rgba(223,240,251,0.15);
+      border-radius: var(--radius-md);
+      margin-top: 1.5rem;
+    }
+    .val-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .val-table th {
+      background: rgba(223,240,251,0.05);
+      font-family: var(--font-display);
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid rgba(223,240,251,0.12);
+    }
+    .val-table td {
+      padding: 12px 16px;
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+      border-bottom: 1px solid rgba(223,240,251,0.06);
+      vertical-align: top;
+    }
+    .val-table tr:last-child td { border-bottom: none; }
+    .val-table tr:hover td { background: rgba(223,240,251,0.02); }
+    .check-ok {
+      font-family: var(--font-mono);
+      color: #28c840;
+      text-shadow: 0 0 8px rgba(40,200,64,0.6);
+      font-size: 1rem;
+    }
+
+    /* ================================================================
+       BILAN — grille problème/solution
+    ================================================================ */
+    .issue-grid {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      border: 1px solid rgba(223,240,251,0.15);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-top: 1.5rem;
+    }
+    @media(max-width:500px){ .issue-grid{ grid-template-columns:1fr; } }
+    .issue-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(223,240,251,0.08);
+      display: flex;
+      align-items: center;
+      background: rgba(223,240,251,0.03);
+    }
+    .issue-label.prob  { color: #ff5f57; }
+    .issue-label.cause { color: #febc2e; }
+    .issue-label.fix   { color: #28c840; }
+    .issue-label.method{ color: var(--color-text-muted); }
+    .issue-value {
+      padding: 14px 16px;
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+      border-bottom: 1px solid rgba(223,240,251,0.08);
+    }
+    .issue-label:last-of-type,
+    .issue-value:last-child { border-bottom: none; }
+
+    /* ================================================================
+       AMÉLIORATIONS
+    ================================================================ */
+    .improvements-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .improve-card {
+      background: var(--color-bg-card);
+      border: 1px solid rgba(223,240,251,0.12);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .improve-card:hover {
+      border-color: rgba(234,179,8,0.40);
+      box-shadow: 0 0 20px rgba(234,179,8,0.06), var(--shadow-pixel-hover);
+    }
+    .improve-card__title {
+      font-family: var(--font-display);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-text-primary);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .improve-card__icon { font-size: 0.875rem; }
+    .improve-card p {
+      font-size: 0.82rem;
+      color: var(--color-text-muted);
+      line-height: 1.6;
+    }
+
+    /* ================================================================
+       COMPÉTENCES
+    ================================================================ */
+    .comp-list { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.5rem; }
+    .comp-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      background: var(--color-bg-card);
+      border: 1px solid rgba(223,240,251,0.12);
+      border-radius: var(--radius-md);
+      transition: border-color 0.25s;
+    }
+    .comp-item:hover { border-color: rgba(223,240,251,0.30); }
+    .comp-check {
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      color: #28c840;
+      text-shadow: 0 0 8px rgba(40,200,64,0.6);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .comp-item strong {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-text-primary);
+      margin-bottom: 4px;
+    }
+    .comp-item span {
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+    }
+
+    /* ================================================================
+       FOOTER
+    ================================================================ */
+    .site-footer {
+      background: var(--color-bg-secondary);
+      border-top: 1px solid rgba(223,240,251,0.10);
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+    .footer-logo {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 900;
+      margin-bottom: 0.5rem;
+    }
+    .footer-logo__bracket { color: #eab308; text-shadow: var(--glow-gold); }
+    .footer-tagline {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      letter-spacing: 0.08em;
+    }
+    .footer-kanji {
+      font-family: var(--font-japanese);
+      font-size: 0.75rem;
+      color: rgba(234,179,8,0.35);
+      margin-top: 0.5rem;
+      letter-spacing: 0.1em;
+    }
+
+    /* ================================================================
+       RESPONSIVE
+    ================================================================ */
+    @media(max-width:768px){
+      .hero-section { flex-direction: column; gap: 2rem; padding: 6rem 1.5rem 3rem; text-align: center; }
+      .section-title { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Grille néon animée -->
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <!-- ============================================================
+       NAVIGATION
+  ============================================================ -->
+  <header class="site-header" role="banner">
+    <nav class="nav-container" aria-label="Navigation">
+      <a href="#" class="nav-logo" aria-label="Tom Marcorelli">
+        <span class="nav-logo__bracket">[</span>
+        <span class="nav-logo__name">TM</span>
+        <span class="nav-logo__bracket">]</span>
+        <span class="nav-logo__kanji" aria-hidden="true">ネット</span>
+      </a>
+      <a href="index.html" class="nav-back">← Portfolio</a>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- ============================================================
+         HERO
+    ============================================================ -->
+    <section class="hero-section section-container">
+
+      <div class="hero-kanji-deco" aria-hidden="true">
+        <span class="kanji-float kanji-float--1">電</span>
+        <span class="kanji-float kanji-float--2">脳</span>
+        <span class="kanji-float kanji-float--3">域</span>
+        <span class="kanji-float kanji-float--4">管</span>
+      </div>
+
+      <!-- Texte hero -->
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="hero-badge__dot"></span>
+          <span class="hero-badge__text">BTS SIO — Option SISR — 1ère Année</span>
+        </div>
+
+        <h1 class="hero-title">
+          <span class="glitch-text" data-text="Active">Active</span><br>
+          <span class="glitch-text glitch-text--accent" data-text="Directory">Directory</span>
+        </h1>
+
+        <p class="hero-subtitle">Fiche de réalisation · Mai 2026</p>
+        <p class="hero-description">
+          Déploiement d'une infrastructure Active Directory complète sous Windows Server 2022
+          avec contrôleur de domaine, gestion d'utilisateurs et stratégies de groupe (GPO).
+        </p>
+      </div>
+
+      <!-- Terminal -->
+      <div class="hero-terminal" aria-hidden="true">
+        <div class="terminal-header">
+          <span class="terminal-dot terminal-dot--red"></span>
+          <span class="terminal-dot terminal-dot--yellow"></span>
+          <span class="terminal-dot terminal-dot--green"></span>
+          <span class="terminal-title">SRV-AD-01 · sisr.local</span>
+        </div>
+        <div class="terminal-body">
+          <div><span class="t-prompt">C:\&gt; </span><span class="t-cmd">Get-ADDomain sisr.local</span></div>
+          <div><span class="t-muted">&nbsp;</span></div>
+          <div><span class="t-info">DNSRoot&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : </span><span class="t-val">sisr.local</span></div>
+          <div><span class="t-info">DomainMode&nbsp;&nbsp; : </span><span class="t-val">Windows2016Domain</span></div>
+          <div><span class="t-info">PDCEmulator&nbsp; : </span><span class="t-val">SRV-AD-01.sisr.local</span></div>
+          <div><span class="t-muted">&nbsp;</span></div>
+          <div><span class="t-prompt">C:\&gt; </span><span class="t-cmd">gpresult /r</span></div>
+          <div><span class="t-muted">&nbsp;</span></div>
+          <div><span class="t-info">GPO appliquée : </span><span class="t-ok">GPO-Employes ✓</span></div>
+          <div><span class="t-info">Groupe&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : </span><span class="t-ok">GRP-Employes ✓</span></div>
+          <div><span class="t-muted">&nbsp;</span></div>
+          <div><span class="t-prompt">C:\&gt; </span><span class="t-cursor"></span></div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ============================================================
+         01 · PRÉSENTATION
+    ============================================================ -->
+    <section class="section" id="presentation">
+      <div class="section-container">
+        <header class="section-header">
+          <p class="section-label">// 01</p>
+          <h2 class="section-title">Présentation
+            <span class="section-title__kanji" aria-hidden="true">概要</span>
+          </h2>
+          <div class="section-divider"></div>
+        </header>
+
+        <div class="about-grid">
+          <div class="card">
+            <p class="about-card-title">▶ Problématique</p>
+            <div class="problem-quote">
+              Comment centraliser la gestion des utilisateurs et des droits d'accès sur un réseau d'entreprise, tout en appliquant des stratégies de sécurité uniformes sur tous les postes clients ?
+            </div>
+          </div>
+          <div class="card">
+            <p class="about-card-title">◈ Contexte du projet</p>
+            <p style="font-size:.9rem;color:var(--color-text-secondary);">
+              Projet d'administration système en 1ère année de BTS SIO option SISR. L'objectif est de simuler un environnement d'entreprise réaliste avec un contrôleur de domaine, des comptes utilisateurs, des groupes de sécurité et des stratégies de groupe (GPO), hébergé sur VMware Workstation.
+            </p>
+            <div style="margin-top:1rem;display:flex;gap:.75rem;flex-wrap:wrap;">
+              <span class="role-tag">Windows Server 2022</span>
+              <span class="role-tag">VMware Workstation</span>
+              <span class="role-tag">Active Directory</span>
+              <span class="role-tag">GPO</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         02 · OBJECTIFS
+    ============================================================ -->
+    <section class="section" id="objectifs" style="background:rgba(223,240,251,0.015);">
+      <div class="section-container">
+        <header class="section-header">
+          <p class="section-label">// 02</p>
+          <h2 class="section-title">Objectifs techniques
+            <span class="section-title__kanji" aria-hidden="true">目標</span>
+          </h2>
+          <div class="section-divider"></div>
+        </header>
+
+        <ul class="obj-list">
+          <li class="obj-item">
+            <span class="obj-item__icon">▸</span>
+            Installer et configurer Windows Server 2022 en machine virtuelle <code>SRV-AD-01</code>
+          </li>
+          <li class="obj-item">
+            <span class="obj-item__icon">▸</span>
+            Déployer le rôle AD DS et créer le domaine <code>sisr.local</code>
+          </li>
+          <li class="obj-item">
+            <span class="obj-item__icon">▸</span>
+            Créer une structure organisationnelle (OU <code>Utilisateurs-SISR</code>, comptes, groupes)
+          </li>
+          <li class="obj-item">
+            <span class="obj-item__icon">▸</span>
+            Appliquer une stratégie de groupe <code>GPO-Employes</code> pour restreindre les accès
+          </li>
+          <li class="obj-item">
+            <span class="obj-item__icon">▸</span>
+            Joindre un poste client Windows 10 <code>CLI-WIN-01</code> au domaine
+          </li>
+          <li class="obj-item">
+            <span class="obj-item__icon">▸</span>
+            Valider la jonction et l'application des GPO sur le client via <code>gpresult /r</code>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         03 · INFRASTRUCTURE
+    ============================================================ -->
+    <section class="section" id="infrastructure">
+      <div class="section-container">
+        <header class="section-header">
+          <p class="section-label">// 03</p>
+          <h2 class="section-title">Infrastructure
+            <span class="section-title__kanji" aria-hidden="true">構成</span>
+          </h2>
+          <div class="section-divider"></div>
+        </header>
+
+        <div class="card">
+          <p class="about-card-title">◈ Schéma réseau — VMware Workstation</p>
+
+          <div class="infra-grid">
+            <!-- Serveur -->
+            <div class="vm-card">
+              <div class="vm-card__name">SRV-AD-01</div>
+              <div class="vm-card__os">WINDOWS SERVER 2022 STANDARD</div>
+              <div class="vm-ip"><span class="vm-ip__dot vm-ip__dot--cyan"></span> VMnet2 : 192.168.2.10 / 24</div>
+              <div class="vm-ip"><span class="vm-ip__dot vm-ip__dot--gold"></span> NAT : accès Internet</div>
+              <div class="vm-ip"><span class="vm-ip__dot vm-ip__dot--green"></span> DNS : lui-même (192.168.2.10)</div>
+              <div class="roles-row">
+                <span class="role-tag">AD DS</span>
+                <span class="role-tag">DNS</span>
+                <span class="role-tag">GPMC</span>
+              </div>
+            </div>
+
+            <!-- Lien -->
+            <div class="infra-link">
+              <span class="infra-link__label">Auth AD / GPO</span>
+              <div class="infra-link__line"></div>
+              <span class="infra-link__label">Requêtes DNS</span>
+              <div class="infra-link__line"></div>
+              <span class="infra-link__net">VMnet2<br>192.168.2.0/24<br>(Host-only)</span>
+            </div>
+
+            <!-- Client -->
+            <div class="vm-card">
+              <div class="vm-card__name">CLI-WIN-01</div>
+              <div class="vm-card__os">WINDOWS 10 PROFESSIONNEL</div>
+              <div class="vm-ip"><span class="vm-ip__dot vm-ip__dot--cyan"></span> VMnet2 : 192.168.2.20 / 24</div>
+              <div class="vm-ip"><span class="vm-ip__dot vm-ip__dot--gold"></span> DNS → 192.168.2.10 (SRV-AD-01)</div>
+              <div class="vm-ip"><span class="vm-ip__dot vm-ip__dot--green"></span> Domaine : sisr.local</div>
+              <div style="margin-top:.75rem;font-family:var(--font-mono);font-size:.7rem;color:var(--color-text-muted);">
+                Compte connecté : SISR\jean.dupont<br>
+                GPO appliquée : GPO-Employes
+              </div>
+            </div>
+          </div>
+
+          <div class="note" style="margin-top:1.25rem;">
+            Le réseau VMnet2 (Host-only) simule un LAN d'entreprise isolé sans accès extérieur non maîtrisé. La carte NAT sur SRV-AD-01 est réservée aux mises à jour du serveur uniquement.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         04 · RÉALISATION TECHNIQUE
+    ============================================================ -->
+    <section class="section" id="realisation" style="background:rgba(223,240,251,0.015);">
+      <div class="section-container">
+        <header class="section-header">
+          <p class="section-label">// 04</p>
+          <h2 class="section-title">Réalisation technique
+            <span class="section-title__kanji" aria-hidden="true">実装</span>
+          </h2>
+          <div class="section-divider"></div>
+        </header>
+
+        <div class="steps-list">
+
+          <!-- Étape 1 -->
+          <div class="step-card">
+            <div class="step-card__header">
+              <span class="step-card__num">ÉTAPE 01</span>
+              <h3 class="step-card__title">Préparation des machines virtuelles</h3>
+            </div>
+            <p>Deux étapes sont indispensables avant toute installation de rôle : attribuer un nom explicite au serveur (convention : <code>SRV</code> = serveur, <code>AD</code> = Active Directory, <code>01</code> = premier de la série) et lui assigner une adresse IP fixe — obligatoire pour un contrôleur de domaine, car les postes clients doivent toujours pouvoir le joindre à la même adresse.</p>
+            <p>SRV-AD-01 est créé avec deux cartes réseau : une carte NAT pour l'accès Internet et une carte VMnet2 (Host-only) avec l'IP fixe <code>192.168.2.10/24</code>. Le champ DNS préféré est laissé vide à ce stade — il sera renseigné après l'installation du rôle DNS.</p>
+            <div class="note">Ce point du DNS sera à l'origine d'une difficulté rencontrée lors de la jonction du poste client (voir section 06).</div>
+          </div>
+
+          <!-- Étape 2 -->
+          <div class="step-card">
+            <div class="step-card__header">
+              <span class="step-card__num">ÉTAPE 02</span>
+              <h3 class="step-card__title">Installation du rôle AD DS</h3>
+            </div>
+            <p>Le rôle AD DS (Active Directory Domain Services) est le service central qui transforme le serveur en contrôleur de domaine. L'installation se déroule en deux temps :</p>
+            <p><strong style="color:var(--color-text-primary)">1.</strong> Ajout du rôle via <em>Gestionnaire de serveur → Gérer → Ajouter des rôles et fonctionnalités</em> → sélection de « Services de domaine Active Directory ». Les dépendances (outils d'administration AD, module PowerShell AD) sont installées automatiquement.</p>
+            <p><strong style="color:var(--color-text-primary)">2.</strong> Promotion en contrôleur de domaine via le lien de notification post-installation. On sélectionne « Ajouter une nouvelle forêt » avec le nom de domaine racine <code>sisr.local</code>.</p>
+            <div class="note">Le suffixe .local indique un domaine privé non résolvable sur Internet. Un mot de passe DSRM est défini pour l'accès en mode récupération. Le rôle DNS est installé automatiquement — indispensable pour que les clients localisent le DC via des enregistrements SRV.</div>
+          </div>
+
+          <!-- Étape 3 -->
+          <div class="step-card">
+            <div class="step-card__header">
+              <span class="step-card__num">ÉTAPE 03</span>
+              <h3 class="step-card__title">Création de la structure organisationnelle</h3>
+            </div>
+            <p>Une Unité d'Organisation (OU) est un conteneur logique permettant de regrouper des objets selon des critères métier et d'y lier des GPO ciblées. Via la console <em>Utilisateurs et ordinateurs Active Directory</em>, on crée :</p>
+            <p>— L'OU <code>Utilisateurs-SISR</code> directement sous sisr.local<br>
+            — Les comptes <code>jean.dupont@sisr.local</code> et <code>Marie.Martine@sisr.local</code><br>
+            — Le groupe de sécurité <code>GRP-Employes</code> (type Sécurité, étendue Domaine local)</p>
+            <p>Les deux utilisateurs sont ajoutés comme membres du groupe, ce qui permettra de filtrer l'application des GPO.</p>
+          </div>
+
+          <!-- Étape 4 -->
+          <div class="step-card">
+            <div class="step-card__header">
+              <span class="step-card__num">ÉTAPE 04</span>
+              <h3 class="step-card__title">Configuration de la GPO</h3>
+            </div>
+            <p>Via la console GPMC, on crée l'objet <code>GPO-Employes</code> et on le lie à l'OU <code>Utilisateurs-SISR</code>. Le paramètre activé est :</p>
+            <div class="cmd-block">
+              <div><span class="t-muted">// Chemin dans l'éditeur GPO :</span></div>
+              <div><span class="t-val">Configuration utilisateur</span></div>
+              <div>&nbsp;&nbsp;→ <span class="t-val">Modèles d'administration</span></div>
+              <div>&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="t-val">Panneau de configuration</span></div>
+              <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="t-ok">Interdire l'accès au Panneau de configuration et à l'application Paramètres du PC</span></div>
+              <div>&nbsp;</div>
+              <div><span class="t-muted">Statut :</span> <span class="t-ok">Activé ✓</span></div>
+            </div>
+            <div class="note">S'applique à la prochaine ouverture de session — ou immédiatement après <code>gpupdate /force</code>. Le filtre de sécurité cible par défaut les « Utilisateurs authentifiés » de l'OU.</div>
+          </div>
+
+          <!-- Étape 5 -->
+          <div class="step-card">
+            <div class="step-card__header">
+              <span class="step-card__num">ÉTAPE 05</span>
+              <h3 class="step-card__title">Configuration et jonction du poste client</h3>
+            </div>
+            <p>CLI-WIN-01 est renommé et configuré avec l'IP fixe <code>192.168.2.20/24</code>. Point critique : le DNS préféré doit impérativement pointer vers <code>192.168.2.10</code> — c'est via DNS que Windows localise le domaine sisr.local.</p>
+            <p>La jonction s'effectue depuis <em>Paramètres → Système → À propos de → Renommer ce PC (avancé) → Membre d'un domaine</em>. On saisit <code>sisr.local</code> et les identifiants <code>SISR\Administrateur</code>. Un message de bienvenue confirme la réussite de la jonction.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         05 · TESTS & VALIDATION
+    ============================================================ -->
+    <section class="section" id="validation">
+      <div class="section-container">
+        <header class="section-header">
+          <p class="section-label">// 05</p>
+          <h2 class="section-title">Tests &amp; Validation
+            <span class="section-title__kanji" aria-hidden="true">検証</span>
+          </h2>
+          <div class="section-divider"></div>
+        </header>
+
+        <div class="val-table-wrap">
+          <table class="val-table">
+            <thead>
+              <tr>
+                <th>Paramètre vérifié</th>
+                <th>Résultat constaté</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Emplacement de l'utilisateur</td>
+                <td><code>CN=jean dupont, OU=Utilisateurs-SISR, DC=sisr, DC=local</code></td>
+                <td class="check-ok">✓</td>
+              </tr>
+              <tr>
+                <td>GPO appliquée</td>
+                <td><code>GPO-Employes</code> visible dans <code>gpresult /r</code></td>
+                <td class="check-ok">✓</td>
+              </tr>
+              <tr>
+                <td>Appartenance au groupe</td>
+                <td><code>GRP-Employes</code> listé dans les groupes de sécurité</td>
+                <td class="check-ok">✓</td>
+              </tr>
+              <tr>
+                <td>Effet GPO constaté</td>
+                <td>Panneau de configuration et Paramètres Windows inaccessibles (rien ne s'ouvre au clic)</td>
+                <td class="check-ok">✓</td>
+              </tr>
+              <tr>
+                <td>Authentification domaine</td>
+                <td>Session ouverte en tant que <code>jean.dupont@sisr.local</code> via protocole Kerberos</td>
+                <td class="check-ok">✓</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Terminal gpresult -->
+        <div class="card" style="margin-top:2rem;">
+          <p class="about-card-title">◈ Preuve n°2 — gpresult /r</p>
+          <div class="cmd-block">
+            <div><span class="t-prompt">C:\Users\jean.dupont&gt; </span><span class="t-val">gpresult /r</span></div>
+            <div>&nbsp;</div>
+            <div><span class="t-muted">PARAMÈTRES UTILISATEURS</span></div>
+            <div><span class="t-muted">--------------------</span></div>
+            <div>&nbsp;&nbsp;CN=jean dupont,OU=Utilisateurs-SISR,DC=sisr,DC=local</div>
+            <div>&nbsp;&nbsp;Heure de la dernière application : <span class="t-val">11/05/2026 à 02:23:47</span></div>
+            <div>&nbsp;&nbsp;Stratégie appliquée depuis : <span class="t-val">SRV-AD-01.sisr.local</span></div>
+            <div>&nbsp;&nbsp;Nom du domaine : <span class="t-val">SISR</span></div>
+            <div>&nbsp;</div>
+            <div>Objets Stratégie de groupe appliqués</div>
+            <div><span class="t-muted">--------------------------------------</span></div>
+            <div>&nbsp;&nbsp;<span class="t-ok">GPO-Employes</span></div>
+            <div>&nbsp;</div>
+            <div>L'utilisateur fait partie des groupes de sécurité suivants</div>
+            <div><span class="t-muted">------------------------------------------------------</span></div>
+            <div>&nbsp;&nbsp;<span class="t-ok">GRP-Employes</span></div>
+            <div>&nbsp;&nbsp;Utilisateurs authentifiés</div>
+            <div>&nbsp;&nbsp;Utilisateurs du domaine</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         06 · BILAN
+    ============================================================ -->
+    <section class="section" id="bilan" style="background:rgba(223,240,251,0.015);">
+      <div class="section-container">
+        <header class="section-header">
+          <p class="section-label">// 06</p>
+          <h2 class="section-title">Bilan
+            <span class="section-title__kanji" aria-hidden="true">結果</span>
+          </h2>
+          <div class="section-divider"></div>
+        </header>
+
+        <!-- Difficulté -->
+        <p class="about-card-title" style="margin-bottom:.75rem;">◉ Difficulté rencontrée &amp; résolue</p>
+        <div class="issue-grid">
+          <div class="issue-label prob">Problème</div>
+          <div class="issue-value">Impossible de joindre le domaine depuis CLI-WIN-01 malgré ping et nslookup réussis.</div>
+          <div class="issue-label cause">Cause</div>
+          <div class="issue-value">DNS préféré de SRV-AD-01 configuré en <code>127.0.0.1</code> (loopback) : le serveur ne s'enregistrait pas correctement dans son propre DNS avec son IP réseau, rendant le DC introuvable pour les clients.</div>
+          <div class="issue-label fix">Solution</div>
+          <div class="issue-value">Modification du DNS préféré sur SRV-AD-01 de <code>127.0.0.1</code> vers <code>192.168.2.10</code>. Jonction au domaine réussie immédiatement après correction.</div>
+          <div class="issue-label method">Méthode</div>
+          <div class="issue-value">Analyse des messages d'erreur détaillés Windows, tests ping et nslookup depuis le client pour isoler la couche réseau de la couche DNS, puis vérification de la configuration DNS côté serveur.</div>
+        </div>
+
+        <!-- Améliorations -->
+        <p class="about-card-title" style="margin-top:2.5rem;margin-bottom:0.25rem;">◈ Axes d'amélioration</p>
+        <div class="improvements-grid">
+          <div class="improve-card">
+            <p class="improve-card__title"><span class="improve-card__icon">◉</span> Sécurisation</p>
+            <p>Politique de mot de passe complexe via GPO, limitation des tentatives de connexion RDP/SSH.</p>
+          </div>
+          <div class="improve-card">
+            <p class="improve-card__title"><span class="improve-card__icon">◈</span> Serveur DHCP</p>
+            <p>Distribution automatique des adresses IP aux postes clients du domaine.</p>
+          </div>
+          <div class="improve-card">
+            <p class="improve-card__title"><span class="improve-card__icon">◆</span> Sauvegarde AD</p>
+            <p>Sauvegarde automatique de l'Active Directory avec Windows Server Backup.</p>
+          </div>
+          <div class="improve-card">
+            <p class="improve-card__title"><span class="improve-card__icon">▶</span> DC secondaire</p>
+            <p>Contrôleur de domaine secondaire pour la haute disponibilité en cas de panne du principal.</p>
+          </div>
+          <div class="improve-card">
+            <p class="improve-card__title"><span class="improve-card__icon">◉</span> GPO avancées</p>
+            <p>Fond d'écran imposé, désactivation des ports USB, politique de mot de passe renforcée.</p>
+          </div>
+          <div class="improve-card">
+            <p class="improve-card__title"><span class="improve-card__icon">◈</span> Supervision</p>
+            <p>Outil de monitoring (Zabbix ou Nagios) pour surveiller l'état du serveur AD.</p>
+          </div>
+        </div>
+
+        <!-- Compétences -->
+        <p class="about-card-title" style="margin-top:2.5rem;margin-bottom:0.25rem;">✓ Compétences acquises — Bloc 1</p>
+        <div class="comp-list">
+          <div class="comp-item">
+            <span class="comp-check">✓</span>
+            <div>
+              <strong>B1.1 — Gérer le patrimoine</strong>
+              <span>Installation et configuration de Windows Server 2022 et du rôle AD DS sur machine virtuelle.</span>
+            </div>
+          </div>
+          <div class="comp-item">
+            <span class="comp-check">✓</span>
+            <div>
+              <strong>B1.5 — Mettre à disposition des services</strong>
+              <span>Déploiement du service Active Directory accessible et fonctionnel pour les postes clients du domaine.</span>
+            </div>
+          </div>
+          <div class="comp-item">
+            <span class="comp-check">✓</span>
+            <div>
+              <strong>Cyber — Confidentialité</strong>
+              <span>Gestion centralisée des droits via GPO, restriction d'accès aux paramètres système pour les utilisateurs.</span>
+            </div>
+          </div>
+          <div class="comp-item">
+            <span class="comp-check">✓</span>
+            <div>
+              <strong>Cyber — Disponibilité</strong>
+              <span>Service AD DS configuré pour démarrer automatiquement au lancement du serveur.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="site-footer">
+    <p class="footer-logo">
+      <span class="footer-logo__bracket">[</span>TM<span class="footer-logo__bracket">]</span>
+    </p>
+    <p class="footer-tagline">Tom Marcorelli · BTS SIO SISR · Nexa Digital School, Paris · 2025/2026</p>
+    <p class="footer-kanji" aria-hidden="true">ネットワーク · セキュリティ · システム</p>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tom Marcorelli — BTS SIO SISR</title>
+  <meta name="description" content="Portfolio de Tom Marcorelli, étudiant BTS SIO SISR à Nexa Digital School Paris. Spécialisé en réseaux, systèmes et cybersécurité. Disponible pour alternance en Île-de-France." />
+  <meta name="author" content="Tom Marcorelli" />
+  <meta property="og:title" content="Tom Marcorelli — BTS SIO SISR" />
+  <meta property="og:description" content="Portfolio de Tom Marcorelli, étudiant BTS SIO SISR. Réseaux, systèmes, cybersécurité." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='8' fill='%2306080a'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='monospace' font-weight='900' font-size='22' fill='%23eab308'>[TM]</text></svg>" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-icons-font@9/font/simple-icons.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       PRÉLOADER — affiché pendant le chargement de la page
+       Retiré automatiquement par JS une fois le DOM prêt
+  ============================================================ -->
+  <div class="preloader" id="preloader" aria-hidden="true" style="position:fixed;inset:0;z-index:9999;overflow:hidden;background:#f5f0e8;display:flex;align-items:center;justify-content:center;">
+    <canvas id="pl-canvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+  </div>
+
+
+  <!-- ============================================================
+       EFFET DE FOND : grille néon animée + scanlines + bruit
+  ============================================================ -->
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <!-- ============================================================
+       CURSEUR PERSONNALISÉ (manga japonais)
+  ============================================================ -->
+
+  <!-- ============================================================
+       BARRE DE NAVIGATION — sticky, glassmorphism
+  ============================================================ -->
+  <header class="site-header" role="banner">
+    <nav class="nav-container" aria-label="Navigation principale">
+
+      <!-- Logo / identité -->
+      <a href="#accueil" class="nav-logo" aria-label="Retour à l'accueil">
+        <span class="nav-logo__bracket">[</span>
+        <span class="nav-logo__name">TM</span>
+        <span class="nav-logo__bracket">]</span>
+        <!-- Glyphe japonais décoratif : "réseau" -->
+        <span class="nav-logo__kanji" aria-hidden="true">ネット</span>
+      </a>
+
+      <!-- TOGGLE MODE JOUR — Interrupteur ON/OFF style manga -->
+      <button class="matrix-toggle" id="matrix-toggle" aria-label="Activer le mode Jour">
+        <span class="matrix-toggle__icon">☀</span>
+      </button>
+
+      <!-- Bouton hamburger pour mobile -->
+      <button class="nav-toggle" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="nav-menu">
+        <span class="nav-toggle__bar"></span>
+        <span class="nav-toggle__bar"></span>
+        <span class="nav-toggle__bar"></span>
+      </button>
+
+      <!-- Navigation dans le bon ordre -->
+      <ul class="nav-menu" id="nav-menu" role="list">
+        <li><a href="#accueil"        class="nav-link" data-kanji="ホーム">Accueil</a></li>
+        <li><a href="#apropos"        class="nav-link" data-kanji="プロフィール">À Propos</a></li>
+        <li><a href="#competences"    class="nav-link" data-kanji="スキル">Compétences</a></li>
+        <li><a href="#projets"        class="nav-link" data-kanji="プロジェクト">Projets &amp; E5</a></li>
+        <li><a href="#e6"             class="nav-link" data-kanji="企業">E6</a></li>
+        <li><a href="#veille"         class="nav-link" data-kanji="調査">Veille</a></li>
+        <li><a href="#contact"        class="nav-link nav-link--cta" data-kanji="接触">Contact</a></li>
+        <!-- Liens secondaires discrets -->
+        <li><a href="https://github.com/tommarcorelli-crypto" target="_blank" rel="noopener noreferrer"
+               class="nav-link nav-link--github" aria-label="GitHub Tom Marcorelli" data-kanji="GitHub">GH</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ============================================================
+       CONTENU PRINCIPAL
+  ============================================================ -->
+  <main id="main-content">
+
+    <!-- ——————————————————————————————————————————
+         SECTION 1 : ACCUEIL / HERO
+    —————————————————————————————————————————— -->
+    <section id="accueil" class="section hero-section" aria-labelledby="hero-title">
+
+      <!-- Décoration japonaise flottante — overflow:hidden sur le parent empêche le kanji coupé -->
+      <div class="hero-kanji-deco" aria-hidden="true">
+        <span class="kanji-float kanji-float--1">電</span>
+        <span class="kanji-float kanji-float--2">脳</span>
+        <span class="kanji-float kanji-float--3">網</span>
+        <span class="kanji-float kanji-float--4">絡</span>
+      </div>
+
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="hero-badge__dot"></span>
+          <span class="hero-badge__text">BTS SIO — Option SISR — 1ère Année</span>
+        </div>
+
+        <h1 id="hero-title" class="hero-title">
+          <span class="glitch-text" data-text="Tom">Tom</span>
+          <br />
+          <span class="glitch-text glitch-text--accent" data-text="Marcorelli">Marcorelli</span>
+        </h1>
+
+        <p class="hero-role" aria-label="Technicien Réseaux & Systèmes en formation">
+          <span class="typewriter">Technicien Réseaux &amp; Systèmes</span>
+        </p>
+
+        <p class="hero-description">
+          En reconversion, déterminé à construire et sécuriser les réseaux de demain.
+          Basé à Argenteuil, disponible pour une alternance en Île-de-France.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#projets" class="btn btn--primary">
+            <span class="btn__icon" aria-hidden="true">▶</span>
+            Voir mes projets
+          </a>
+          <a href="#contact" class="btn btn--ghost">
+            <span class="btn__icon" aria-hidden="true">◈</span>
+            Me contacter
+          </a>
+          <!-- Bouton téléchargement CV -->
+          <a href="cv-tom-marcorelli.pdf" class="btn btn--cv" download aria-label="Télécharger le CV de Tom Marcorelli en PDF">
+            <span class="btn__icon" aria-hidden="true">↓</span>
+            Télécharger CV
+          </a>
+        </div>
+      </div>
+
+      <!-- Terminal animé — les lignes sont générées lettre par lettre par script.js
+           data-lines contient le script JSON des lignes à taper -->
+      <div class="hero-terminal" aria-hidden="true">
+        <div class="terminal-header">
+          <span class="terminal-dot terminal-dot--red"></span>
+          <span class="terminal-dot terminal-dot--yellow"></span>
+          <span class="terminal-dot terminal-dot--green"></span>
+          <span class="terminal-title">tom@sisr:~$</span>
+        </div>
+        <div class="terminal-body" id="terminal-body">
+          <!-- Contenu injecté dynamiquement par initTerminalTypewriter() dans script.js -->
+        </div>
+      </div>
+
+      <!-- Indicateur de scroll -->
+      <div class="scroll-indicator" aria-hidden="true">
+        <span class="scroll-indicator__text">SCROLL</span>
+        <span class="scroll-indicator__arrow">↓</span>
+      </div>
+    </section>
+
+    <!-- ——————————————————————————————————————————
+         SECTION 2 : À PROPOS
+    —————————————————————————————————————————— -->
+    <section id="apropos" class="section about-section" aria-labelledby="apropos-title">
+      <div class="section-container">
+
+        <!-- En-tête de section standard (réutilisé sur tout le site) -->
+        <header class="section-header">
+          <p class="section-label" aria-hidden="true">// 01</p>
+          <h2 id="apropos-title" class="section-title">À Propos
+            <span class="section-title__kanji" aria-hidden="true">プロフィール</span>
+          </h2>
+          <div class="section-divider" aria-hidden="true"></div>
+        </header>
+
+        <div class="about-grid">
+
+          <!-- Carte avatar / identité -->
+          <div class="about-avatar-card">
+            <div class="avatar-frame">
+              <!-- Avatar généré en CSS : initiales stylisées -->
+              <div class="avatar-initials" aria-label="Avatar de Tom Marcorelli">TM</div>
+              <div class="avatar-ring avatar-ring--1" aria-hidden="true"></div>
+              <div class="avatar-ring avatar-ring--2" aria-hidden="true"></div>
+            </div>
+            <div class="about-id-badge">
+              <p class="about-id-badge__name">Tom Marcorelli</p>
+              <p class="about-id-badge__status">
+                <span class="status-dot" aria-hidden="true"></span>
+                Disponible pour alternance
+              </p>
+            </div>
+          </div>
+
+          <!-- Texte de présentation -->
+          <div class="about-content">
+            <p class="about-text">
+              En reconversion professionnelle, j'ai validé un <strong>DAEU B à la Sorbonne Paris 13</strong>
+              en 2024 pour accéder à l'enseignement supérieur. Je me forme aujourd'hui en
+              <strong>BTS SIO SISR à Nexa Digital School (Paris)</strong>, passionné par les
+              infrastructures réseau et la cybersécurité.
+            </p>
+            <p class="about-text">
+              Mon objectif : maîtriser les protocoles réseau, l'administration systèmes
+              et la sécurité pour protéger les SI de demain. Basé à Argenteuil,
+              disponible pour une alternance en Île-de-France.
+            </p>
+
+            <!-- Description BTS SIO -->
+            <div class="about-bts-card">
+              <h3 class="about-bts-card__title">
+                <span class="about-bts-card__icon" aria-hidden="true">◈</span>
+                Qu'est-ce que le BTS SIO ?
+              </h3>
+              <p class="about-bts-card__text">
+                Le <strong>BTS Services Informatiques aux Organisations (SIO)</strong> est un diplôme
+                d'État de niveau Bac+2 qui forme des techniciens capables de répondre aux besoins
+                informatiques des entreprises. Il se décline en deux options :
+                <strong>SLAM</strong> (développement logiciel) et <strong>SISR</strong>
+                (infrastructure réseau et sécurité), que j'ai choisie.
+              </p>
+              <p class="about-bts-card__text">
+                L'option <strong>SISR — Solutions d'Infrastructure, Systèmes et Réseaux</strong>
+                forme à l'administration des réseaux, à la gestion des serveurs, à la cybersécurité
+                et à la supervision des systèmes d'information. Les compétences acquises couvrent
+                notamment la configuration d'équipements réseau (routeurs, switchs, pare-feu),
+                la mise en place de services (DNS, DHCP, Active Directory, VPN) et la sécurisation
+                des infrastructures selon les référentiels DICP.
+              </p>
+            </div>
+
+            <!-- Statistiques / chiffres clés -->
+            <div class="about-stats">
+              <div class="stat-item">
+                <span class="stat-item__value">28</span>
+                <span class="stat-item__label">Ans</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-item__value" style="font-size:1rem;">1ère</span>
+                <span class="stat-item__label">Année BTS SIO</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-item__value">SISR</span>
+                <span class="stat-item__label">Option</span>
+              </div>
+            </div>
+
+            <!-- Liens rapides -->
+            <div class="about-links">
+              <address class="about-contact-info">
+                <a href="mailto:tommarcorelli@gmail.com" class="contact-inline">
+                  <span class="contact-inline__icon" aria-hidden="true">◉</span>
+                  tommarcorelli@gmail.com
+                </a>
+              </address>
+              <a href="https://github.com/tommarcorelli-crypto" target="_blank" rel="noopener noreferrer" class="contact-inline">
+                <span class="contact-inline__icon" aria-hidden="true">◈</span>
+                github.com/tommarcorelli-crypto
+              </a>
+              <p class="contact-inline">
+                <span class="contact-inline__icon" aria-hidden="true">◆</span>
+                Nexa Digital School — Paris
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Parcours intégré dans À Propos -->
+        <div class="about-timeline-wrapper">
+          <h3 class="about-timeline-title">Mon Parcours <span aria-hidden="true" class="section-title__kanji">経歴</span></h3>
+          <ol class="timeline" aria-label="Chronologie du parcours de Tom Marcorelli">
+
+            <li class="timeline-item timeline-item--past">
+              <div class="timeline-item__marker" aria-hidden="true">
+                <span class="timeline-item__dot"></span>
+                <span class="timeline-item__line"></span>
+              </div>
+              <div class="timeline-item__content">
+                <time class="timeline-item__date" datetime="2024">2024</time>
+                <h4 class="timeline-item__title">DAEU B — Diplôme d'Accès aux Études Universitaires</h4>
+                <p class="timeline-item__school">
+                  <span class="timeline-item__school-icon" aria-hidden="true">◈</span>
+                  Université Sorbonne Paris Nord — Villetaneuse (Paris 13)
+                </p>
+                <p class="timeline-item__description">
+                  Obtention du DAEU option B (scientifique) dans le cadre d'une reconversion
+                  professionnelle, donnant accès à l'enseignement supérieur.
+                  Modules : Mathématiques, Sciences, Français.
+                </p>
+                <div class="timeline-item__tags">
+                  <span class="timeline-tag">Reconversion</span>
+                  <span class="timeline-tag">Mathématiques</span>
+                  <span class="timeline-tag">Sciences</span>
+                </div>
+              </div>
+            </li>
+
+            <li class="timeline-item timeline-item--current">
+              <div class="timeline-item__marker" aria-hidden="true">
+                <span class="timeline-item__dot timeline-item__dot--active"></span>
+                <span class="timeline-item__line"></span>
+              </div>
+              <div class="timeline-item__content">
+                <time class="timeline-item__date" datetime="2025/2026">2025 — 2026</time>
+                <h4 class="timeline-item__title">BTS SIO — Option SISR
+                  <span class="timeline-item__badge">En cours</span>
+                </h4>
+                <p class="timeline-item__school">
+                  <span class="timeline-item__school-icon" aria-hidden="true">◈</span>
+                  Nexa Digital School — Paris
+                </p>
+                <p class="timeline-item__description">
+                  Formation en 2 ans spécialisée en réseaux, systèmes et cybersécurité.
+                  Apprentissage des protocoles réseau, administration Linux/Windows Server,
+                  virtualisation et sécurisation des infrastructures.
+                </p>
+                <div class="timeline-item__tags">
+                  <span class="timeline-tag timeline-tag--highlight">Réseaux</span>
+                  <span class="timeline-tag timeline-tag--highlight">Cybersécurité</span>
+                  <span class="timeline-tag timeline-tag--highlight">Linux</span>
+                  <span class="timeline-tag timeline-tag--highlight">Cisco</span>
+                </div>
+              </div>
+            </li>
+
+            <li class="timeline-item timeline-item--future">
+              <div class="timeline-item__marker" aria-hidden="true">
+                <span class="timeline-item__dot timeline-item__dot--future"></span>
+              </div>
+              <div class="timeline-item__content">
+                <time class="timeline-item__date" datetime="2026">2026</time>
+                <h4 class="timeline-item__title">Objectif — Administrateur Réseaux & Sécurité</h4>
+                <p class="timeline-item__school">
+                  <span class="timeline-item__school-icon" aria-hidden="true">◆</span>
+                  Alternance / Emploi — Île-de-France
+                </p>
+                <p class="timeline-item__description">
+                  Intégrer une entreprise en tant que technicien réseaux, évoluer vers
+                  un poste d'administrateur infrastructure ou de spécialiste cybersécurité.
+                  Objectif certifications : CCNA, CompTIA Security+.
+                </p>
+                <div class="timeline-item__tags">
+                  <span class="timeline-tag">CCNA</span>
+                  <span class="timeline-tag">CompTIA</span>
+                  <span class="timeline-tag">Alternance</span>
+                </div>
+              </div>
+            </li>
+
+          </ol>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ——————————————————————————————————————————
+         SECTION 3 : COMPÉTENCES TECHNIQUES
+    —————————————————————————————————————————— -->
+    <section id="competences" class="section skills-section" aria-labelledby="skills-title">
+      <div class="section-container">
+
+        <header class="section-header">
+          <p class="section-label" aria-hidden="true">// 02</p>
+          <h2 id="skills-title" class="section-title">Compétences Techniques
+            <span class="section-title__kanji" aria-hidden="true">スキル</span>
+          </h2>
+          <div class="section-divider" aria-hidden="true"></div>
+        </header>
+
+        <!-- Cards de compétences — responsive, remplace le tableau -->
+        <div class="skills-cards-grid" role="region" aria-label="Compétences techniques">
+
+          <!-- Linux -->
+          <div class="skill-card skill-card--system">
+            <div class="skill-card__header">
+              <div class="skill-card__icon" aria-hidden="true"><i class="si si-linux"></i></div>
+              <h3 class="skill-card__domain">Linux</h3>
+            </div>
+            <ul class="skill-card__list">
+              <li class="skill-card__item">
+                <div class="skill-card__item-top">
+                  <span class="skill-card__name">Administration Debian 12 (IP fixe, SSH, services)</span>
+                  <span class="level-badge level-badge--intermediate">Intermédiaire</span>
+                </div>
+                <div class="skill-card__bar" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" aria-label="75% de maîtrise">
+                  <div class="skill-card__bar-fill" style="--progress:75%"></div>
+                </div>
+              </li>
+              <li class="skill-card__item">
+                <div class="skill-card__item-top">
+                  <span class="skill-card__name">Apache2 — Virtual Host, modules, logs</span>
+                  <span class="level-badge level-badge--intermediate">Intermédiaire</span>
+                </div>
+                <div class="skill-card__bar" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" aria-label="75% de maîtrise">
+                  <div class="skill-card__bar-fill" style="--progress:75%"></div>
+                </div>
+              </li>
+              <li class="skill-card__item">
+                <div class="skill-card__item-top">
+                  <span class="skill-card__name">MariaDB / MySQL — création BDD, utilisateurs, droits</span>
+                  <span class="level-badge level-badge--intermediate">Intermédiaire</span>
+                </div>
+                <div class="skill-card__bar" role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" aria-label="65% de maîtrise">
+                  <div class="skill-card__bar-fill" style="--progress:65%"></div>
+                </div>
+              </li>
+              <li class="skill-card__item">
+                <div class="skill-card__item-top">
+                  <span class="skill-card__name">Scripting Bash (cron, mysqldump, automatisation)</span>
+                  <span class="level-badge level-badge--intermediate">Intermédiaire</span>
+                </div>
+                <div class="skill-card__bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="60% de maîtrise">
+                  <div class="skill-card__bar-fill" style="--progress:60%"></div>
+                </div>
+              </li>
+              <li class="skill-card__item">
+                <div class="skill-card__item-top">
+                  <span class="skill-card__name">Virtualisation VMware Workstation</span>
+                  <span class="level-badge level-badge--intermediate">Intermédiaire</span>
+                </div>
+                <div class="skill-card__bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" aria-label="70% de maîtrise">
+                  <div class="skill-card__bar-fill" style="--progress:70%"></div>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Windows -->
+          <div class="skill-card skill-card--network">
+            <div class="skill-card__header">
+              <div class="skill-card__icon" aria-hidden="true"><i class="si si-windows"></i></div>
+              <h3 class="skill-card__domain">Windows</h3>
+            </div>
+            <ul class="skill-card__list">
+              <li class="skill-card__item">
+                <div class="skill-card__item-top">
+                  <span class="skill-card__name">Windows Server 2022 — Active Directory, DNS, DHCP</span>
+                  <span class="level-badge level-badge--intermediate">Intermédiaire</span>
+                </div>
+                <div class="skill-card__bar" role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" aria-label="65% de maîtrise">
+                  <div class="skill-card__bar-fill" style="--progress:65%"></div>
+                </div>
+              </li>
+              <li class="skill-card__item">
+                <div class="skill-card__item-top">
+                  <span class="skill-card__name">GPO — Stratégies de groupe, gpresult, jonction domaine</span>
+                  <span class="level-badge level-badge--intermediate">Intermédiaire</span>
+                </div>
+                <div class="skill-card__bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="60% de maîtrise">
+                  <div class="skill-card__bar-fill" style="--progress:60%"></div>
+                </div>
+              </li>
+              <li class="skill-card__item">
+                <div class="skill-card__item-top">
+                  <span class="skill-card__name">PowerShell — scripts d'administration de base</span>
+                  <span class="level-badge level-badge--beginner">Débutant</span>
+                </div>
+                <div class="skill-card__bar" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" aria-label="40% de maîtrise">
+                  <div class="skill-card__bar-fill" style="--progress:40%"></div>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Sécurité -->
+          <div class="skill-card skill-card--security">
+            <div class="skill-card__header">
+              <div class="skill-card__icon" aria-hidden="true"><i class="ti ti-shield-lock"></i></div>
+              <h3 class="skill-card__domain">Sécurité</h3>
+            </div>
+            <ul class="skill-card__list">
+              <li class="skill-card__item">
+                <div class="skill-card__item-top">
+                  <span class="skill-card__name">Pare-feu UFW — règles, ports, activation</span>
+                  <span class="level-badge level-badge--intermediate">Intermédiaire</span>
+                </div>
+                <div class="skill-card__bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" aria-label="70% de maîtrise">
+                  <div class="skill-card__bar-fill" style="--progress:70%"></div>
+                </div>
+              </li>
+              <li class="skill-card__item">
+                <div class="skill-card__item-top">
+                  <span class="skill-card__name">HTTPS / SSL — certificat auto-signé, a2enmod ssl</span>
+                  <span class="level-badge level-badge--intermediate">Intermédiaire</span>
+                </div>
+                <div class="skill-card__bar" role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" aria-label="65% de maîtrise">
+                  <div class="skill-card__bar-fill" style="--progress:65%"></div>
+                </div>
+              </li>
+              <li class="skill-card__item">
+                <div class="skill-card__item-top">
+                  <span class="skill-card__name">SSH — connexion distante, MobaXterm, clés</span>
+                  <span class="level-badge level-badge--intermediate">Intermédiaire</span>
+                </div>
+                <div class="skill-card__bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" aria-label="70% de maîtrise">
+                  <div class="skill-card__bar-fill" style="--progress:70%"></div>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- DevOps -->
+          <div class="skill-card skill-card--dev">
+            <div class="skill-card__header">
+              <div class="skill-card__icon" aria-hidden="true"><i class="si si-git"></i></div>
+              <h3 class="skill-card__domain">DevOps</h3>
+            </div>
+            <ul class="skill-card__list">
+              <li class="skill-card__item">
+                <div class="skill-card__item-top">
+                  <span class="skill-card__name">Ansible — playbooks YAML, inventaires, déploiement SSH</span>
+                  <span class="level-badge level-badge--intermediate">Intermédiaire</span>
+                </div>
+                <div class="skill-card__bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="60% de maîtrise">
+                  <div class="skill-card__bar-fill" style="--progress:60%"></div>
+                </div>
+              </li>
+              <li class="skill-card__item">
+                <div class="skill-card__item-top">
+                  <span class="skill-card__name">pfSense CE — pare-feu, DMZ, portail captif, règles firewall</span>
+                  <span class="level-badge level-badge--intermediate">Intermédiaire</span>
+                </div>
+                <div class="skill-card__bar" role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" aria-label="65% de maîtrise">
+                  <div class="skill-card__bar-fill" style="--progress:65%"></div>
+                </div>
+              </li>
+              <li class="skill-card__item">
+                <div class="skill-card__item-top">
+                  <span class="skill-card__name">Git / GitHub — versionnage, commits, dépôts</span>
+                  <span class="level-badge level-badge--beginner">Débutant</span>
+                </div>
+                <div class="skill-card__bar" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" aria-label="45% de maîtrise">
+                  <div class="skill-card__bar-fill" style="--progress:45%"></div>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- Légende des niveaux -->
+        <div class="skills-legend" aria-label="Légende des niveaux de compétence">
+          <span class="level-badge level-badge--beginner">Débutant</span>
+          <span class="skills-legend__sep" aria-hidden="true">|</span>
+          <span class="level-badge level-badge--intermediate">Intermédiaire</span>
+          <span class="skills-legend__sep" aria-hidden="true">|</span>
+          <span class="level-badge level-badge--advanced">Avancé</span>
+        </div>
+
+        <!-- ---- Certifications intégrées ---- -->
+        <div class="certs-inline">
+          <h3 class="certs-inline__title">Certifications</h3>
+          <div class="certs-inline__grid">
+
+            <div class="cert-inline-card cert-inline-card--obtained">
+              <span class="cert-inline-card__logo cert-inline-card__logo--pix">PIX</span>
+              <div>
+                <p class="cert-inline-card__name">Certification PIX</p>
+                <p class="cert-inline-card__detail">Compétences numériques — Gouvernement français</p>
+              </div>
+              <span class="cert-status cert-status--obtained">✓ Obtenu 2024</span>
+            </div>
+
+            <div class="cert-inline-card cert-inline-card--progress">
+              <span class="cert-inline-card__logo cert-inline-card__logo--cisco">CISCO</span>
+              <div>
+                <p class="cert-inline-card__name">Cisco NetAcad — Introduction aux réseaux</p>
+                <p class="cert-inline-card__detail">Cisco Networking Academy</p>
+              </div>
+              <span class="cert-status cert-status--progress">⟳ En cours 2026</span>
+            </div>
+
+            <div class="cert-inline-card cert-inline-card--planned">
+              <span class="cert-inline-card__logo cert-inline-card__logo--ccna">CCNA</span>
+              <div>
+                <p class="cert-inline-card__name">Cisco CCNA</p>
+                <p class="cert-inline-card__detail">Cisco Systems — Objectif 2026</p>
+              </div>
+              <span class="cert-status cert-status--planned">◎ Objectif</span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ——————————————————————————————————————————
+         SECTION 4 : MES PROJETS (grille)
+    —————————————————————————————————————————— -->
+    <!-- ——————————————————————————————————————————
+         SECTION 3 : PROJETS & E5 (fusionnés)
+    —————————————————————————————————————————— -->
+    <section id="projets" class="section projects-section" aria-labelledby="projects-title">
+      <div class="section-container">
+
+        <header class="section-header">
+          <p class="section-label" aria-hidden="true">// 03</p>
+          <h2 id="projects-title" class="section-title">Projets &amp; E5
+            <span class="section-title__kanji" aria-hidden="true">プロジェクト</span>
+          </h2>
+          <div class="section-divider" aria-hidden="true"></div>
+        </header>
+
+        <!-- ══════════════ BLOC E5 (toujours visible) ══════════════ -->
+        <div class="exam-content">
+          <div class="exam-synthesis-table">
+            <div class="exam-synthesis-actions">
+              <a href="assets/tableau_e5.png" download="Tableau_synthese_E5_Marcorelli.png" class="exam-synthesis-btn exam-synthesis-btn--download" aria-label="Télécharger le tableau">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Télécharger
+              </a>
+              <button class="exam-synthesis-btn exam-synthesis-btn--zoom" aria-label="Agrandir le tableau">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                Agrandir
+              </button>
+            </div>
+            <img src="assets/tableau_e5.png" class="exam-synthesis-img" alt="Tableau de synthèse E5" style="cursor:zoom-in">
+          </div>
+
+          <div id="tableau-lightbox" class="tableau-lightbox" role="dialog" aria-modal="true" aria-label="Tableau de synthèse agrandi">
+            <button class="tableau-lightbox__close" aria-label="Fermer">✕</button>
+            <div class="tableau-lightbox__scroll">
+              <img src="assets/tableau_e5.png" alt="Tableau de synthèse E5 — agrandi" class="tableau-lightbox__img">
+            </div>
+          </div>
+
+          <div class="exam-info-card">
+            <div class="exam-info-card__header">
+              <span class="exam-badge exam-badge--e5">E5</span>
+              <h3 class="exam-info-card__subtitle">Support et mise à disposition de services informatiques</h3>
+            </div>
+            <div class="exam-situations">
+              <h4 class="exam-situations__title">Situations professionnelles — BTS SIO SISR 1ère année</h4>
+              <ul class="exam-situations__list">
+                <li class="exam-situation-item">
+                  <span class="exam-situation-item__num" aria-hidden="true">SI-1</span>
+                  <div>
+                    <strong>Serveur Web Linux LAMP + pfSense — Intranet sécurisé avec DMZ et Portail Captif</strong>
+                    <p>
+                      Déploiement d'un serveur web intranet sur Debian 12 placé en zone DMZ isolée
+                      par pfSense CE. Apache 2.4, MariaDB 10.11, PHP 8.2, phpMyAdmin. Mise en place
+                      d'un portail captif avec authentification locale, règles pare-feu LAN↔DMZ,
+                      résolution DNS locale (<code>intranet.local</code>) et sauvegarde automatique
+                      des bases via cron. 6 preuves de validation documentées.
+                    </p>
+                    <p><em>Compétences : B1.1 · B1.2 · B1.3 · B1.4 · B1.5 · B1.6 · Cybersécurité DICP</em></p>
+                  </div>
+                </li>
+                <li class="exam-situation-item">
+                  <span class="exam-situation-item__num" aria-hidden="true">SI-2</span>
+                  <div>
+                    <strong>Mise en place d'un domaine Active Directory avec GPO</strong>
+                    <p>
+                      Déploiement d'un contrôleur de domaine <code>sisr.local</code> sous
+                      Windows Server 2022. Création d'unités organisationnelles, gestion des
+                      utilisateurs et des groupes. Déploiement d'une stratégie de groupe (GPO)
+                      de restriction d'accès aux paramètres système, vérifiée avec
+                      <code>gpresult /r</code> depuis un poste client Windows 10 joint au domaine.
+                    </p>
+                    <p><em>Compétences : B1.1 · B1.2 · B1.5</em></p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════ CATÉGORIES PROJETS ══════════════ -->
+
+          <!-- ── Projet en formation ─────────────────────── -->
+          <div class="projets-categorie">
+            <h3 class="projets-categorie__titre">
+              <span class="projets-categorie__icon" aria-hidden="true">◈</span>
+              Projet en formation
+              <span class="projets-categorie__count">2 projets</span>
+            </h3>
+            <div>
+              <div class="projects-grid">
+
+                <article class="project-card project-card--featured" aria-labelledby="project-1-title">
+                  <div class="project-card__header">
+                    <span class="project-card__number" aria-hidden="true">01</span>
+                    <div class="project-card__tags">
+                      <span class="project-tag project-tag--highlight"><i class="si si-linux" aria-hidden="true"></i> Linux</span>
+                      <span class="project-tag"><i class="si si-apache" aria-hidden="true"></i> LAMP</span>
+                      <span class="project-tag"><i class="si si-pfsense" aria-hidden="true"></i> pfSense</span>
+                    </div>
+                  </div>
+                  <h3 id="project-1-title" class="project-card__title">Serveur Web Linux LAMP + pfSense</h3>
+                  <p class="project-card__description">
+                    Déploiement d'un intranet sécurisé sur Debian 12 en zone DMZ isolée par pfSense CE.
+                    Apache 2.4, MariaDB 10.11, PHP 8.2, phpMyAdmin. Portail captif avec authentification,
+                    règles pare-feu LAN↔DMZ, DNS local <code>intranet.local</code> et sauvegarde
+                    automatique via cron. 6 preuves de validation documentées.
+                  </p>
+                  <div class="project-card__footer" style="flex-direction:column;align-items:stretch;gap:var(--space-4);">
+                    <ul class="project-tech-list" aria-label="Technologies utilisées">
+                      <li><i class="si si-debian" aria-hidden="true"></i> Debian 12</li>
+                      <li><i class="si si-apache" aria-hidden="true"></i> Apache2</li>
+                      <li><i class="si si-mariadb" aria-hidden="true"></i> MariaDB</li>
+                      <li><i class="si si-php" aria-hidden="true"></i> PHP 8.2</li>
+                      <li><i class="si si-pfsense" aria-hidden="true"></i> pfSense CE</li>
+                      <li><i class="ti ti-shield" aria-hidden="true"></i> DMZ / Cron</li>
+                    </ul>
+                    <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+                      <button class="project-card__btn" onclick="openFicheModal('projets/lamp-pfsense.html')" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+                        Fiche HTML
+                      </button>
+                      <a href="projets/Fiche_LAMP_pfSense_.pdf" target="_blank" rel="noopener noreferrer" class="project-card__btn project-card__btn--ghost">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Fiche PDF
+                      </a>
+                      <button class="project-card__btn project-card__btn--react" onclick="openReactDemo('lamp')" type="button" aria-label="Voir la démo interactive du projet LAMP pfSense">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        Démo Live
+                      </button>
+                    </div>
+                  </div>
+                  <div class="project-card__glow" aria-hidden="true"></div>
+                  <div class="project-card__shine" aria-hidden="true"></div>
+                </article>
+
+                <article class="project-card" aria-labelledby="project-2-title">
+                  <div class="project-card__header">
+                    <span class="project-card__number" aria-hidden="true">02</span>
+                    <div class="project-card__tags">
+                      <span class="project-tag"><i class="si si-windows" aria-hidden="true"></i> Windows Server</span>
+                      <span class="project-tag"><i class="ti ti-users-group" aria-hidden="true"></i> AD DS</span>
+                    </div>
+                  </div>
+                  <h3 id="project-2-title" class="project-card__title">Active Directory &amp; GPO</h3>
+                  <p class="project-card__description">
+                    Mise en place d'un contrôleur de domaine <code>sisr.local</code> sous Windows Server 2022
+                    pour une entreprise fictive. Création d'OU, utilisateurs, groupes et GPO de
+                    restriction système. Jonction et vérification depuis un poste client Windows 10
+                    avec <code>gpresult /r</code>. Documentation complète rédigée.
+                  </p>
+                  <div class="project-card__footer" style="flex-direction:column;align-items:stretch;gap:var(--space-4);">
+                    <ul class="project-tech-list" aria-label="Technologies utilisées">
+                      <li><i class="si si-windows" aria-hidden="true"></i> Windows Server 2022</li>
+                      <li><i class="ti ti-users-group" aria-hidden="true"></i> Active Directory</li>
+                      <li><i class="ti ti-settings" aria-hidden="true"></i> GPO</li>
+                      <li><i class="ti ti-world" aria-hidden="true"></i> DNS</li>
+                    </ul>
+                    <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+                      <button class="project-card__btn" onclick="openFicheModal('projets/ActiveDirectory.html')" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+                        Fiche HTML
+                      </button>
+                      <a href="projets/ActiveDirectory.pdf" target="_blank" class="project-card__btn project-card__btn--ghost">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Fiche PDF
+                      </a>
+                      <button class="project-card__btn project-card__btn--react" onclick="openReactDemo('ad')" type="button" aria-label="Voir la démo interactive du projet Active Directory">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        Démo Live
+                      </button>
+                    </div>
+                  </div>
+                  <div class="project-card__glow" aria-hidden="true"></div>
+                  <div class="project-card__shine" aria-hidden="true"></div>
+                </article>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Projet en entreprise ──────────────────────── -->
+          <div class="projets-categorie">
+            <h3 class="projets-categorie__titre">
+              <span class="projets-categorie__icon" aria-hidden="true">◉</span>
+              Projet en entreprise
+              <span class="projets-categorie__count projets-categorie__count--empty">À venir</span>
+            </h3>
+            <div class="projects-grid">
+              <article class="project-card project-card--empty" aria-labelledby="project-ent-title">
+                <div class="project-card__header">
+                  <span class="project-card__number" aria-hidden="true">—</span>
+                  <div class="project-card__tags">
+                    <span class="project-tag project-tag--muted">À venir</span>
+                  </div>
+                </div>
+                <h3 id="project-ent-title" class="project-card__title project-card__title--placeholder">Projet entreprise</h3>
+                <p class="project-card__description project-card__description--placeholder">Les projets réalisés en stage seront ajoutés ici prochainement.</p>
+                <div class="project-card__footer" style="flex-direction:column;align-items:stretch;gap:var(--space-4);">
+                  <ul class="project-tech-list project-tech-list--placeholder" aria-hidden="true"><li>— — —</li><li>— — —</li><li>— — —</li></ul>
+                  <div style="display:flex;gap:.6rem;">
+                    <a href="#" class="project-card__btn project-card__btn--disabled" aria-disabled="true" tabindex="-1">Fiche HTML</a>
+                    <a href="#" class="project-card__btn project-card__btn--ghost project-card__btn--disabled" aria-disabled="true" tabindex="-1">Fiche PDF</a>
+                  </div>
+                </div>
+                <div class="project-card__glow" aria-hidden="true"></div>
+                <div class="project-card__shine" aria-hidden="true"></div>
+              </article>
+            </div>
+          </div>
+
+          <!-- ── Projet découverte ─────────────────────────── -->
+          <div class="projets-categorie">
+            <h3 class="projets-categorie__titre">
+              <span class="projets-categorie__icon" aria-hidden="true">◆</span>
+              Projet découverte
+              <span class="projets-categorie__count">1 projet</span>
+            </h3>
+            <div class="projects-grid">
+
+              <article class="project-card project-card--featured" aria-labelledby="project-k3s-title">
+                <div class="project-card__header">
+                  <span class="project-card__number" aria-hidden="true">03</span>
+                  <div class="project-card__tags">
+                    <span class="project-tag project-tag--highlight"><i class="si si-kubernetes" aria-hidden="true"></i> K3s</span>
+                    <span class="project-tag"><i class="si si-docker" aria-hidden="true"></i> Docker</span>
+                    <span class="project-tag"><i class="si si-grafana" aria-hidden="true"></i> Grafana</span>
+                    <span class="project-tag"><i class="si si-helm" aria-hidden="true"></i> Helm</span>
+                  </div>
+                </div>
+                <h3 id="project-k3s-title" class="project-card__title">Lab Kubernetes K3s — Cluster complet</h3>
+                <p class="project-card__description">
+                  Déploiement d'un cluster Kubernetes multi-nœuds sur VMware Workstation avec 4 VMs Debian 12.
+                  Stack complète : Longhorn (stockage), Prometheus + Grafana (monitoring), Gitea + ArgoCD (GitOps),
+                  Harbor + Trivy (DevSecOps), Kyverno (sécurité), MetalLB, Cert-Manager, WordPress + MariaDB.
+                  Pipeline DevSecOps complet avec détection et correction de CVE.
+                </p>
+                <div class="project-card__footer" style="flex-direction:column;align-items:stretch;gap:var(--space-4);">
+                  <ul class="project-tech-list" aria-label="Technologies utilisées">
+                    <li><i class="si si-kubernetes" aria-hidden="true"></i> K3s v1.35.5</li>
+                    <li><i class="si si-helm" aria-hidden="true"></i> Helm v3.21</li>
+                    <li><i class="si si-grafana" aria-hidden="true"></i> Grafana</li>
+                    <li><i class="si si-docker" aria-hidden="true"></i> Harbor + Trivy</li>
+                    <li><i class="si si-argo" aria-hidden="true"></i> ArgoCD</li>
+                    <li><i class="si si-gitea" aria-hidden="true"></i> Gitea</li>
+                  </ul>
+                  <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+                    <button class="project-card__btn" onclick="openFicheModal('projets/k3s.html')" type="button">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+                      Fiche HTML
+                    </button>
+                    <a href="projets/fiche_k3s.pdf" target="_blank" rel="noopener noreferrer" class="project-card__btn project-card__btn--ghost">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                      Fiche PDF
+                    </a>
+                    <button class="project-card__btn project-card__btn--react" onclick="openReactDemo('k3s')" type="button" aria-label="Voir la démo interactive du projet K3s">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                      Démo Live
+                    </button>
+                  </div>
+                </div>
+                <div class="project-card__glow" aria-hidden="true"></div>
+                <div class="project-card__shine" aria-hidden="true"></div>
+              </article>
+
+            </div>
+          </div>
+
+      </div>
+    </section>
+
+
+    <!-- ——————————————————————————————————————————
+         SECTION E6
+    —————————————————————————————————————————— -->
+    <section id="e6" class="section e6-section" aria-labelledby="e6-title">
+      <div class="section-container">
+
+        <header class="section-header">
+          <p class="section-label" aria-hidden="true">// 04</p>
+          <h2 id="e6-title" class="section-title">Projet en Entreprise
+            <span class="section-title__kanji" aria-hidden="true">企業</span>
+          </h2>
+          <div class="section-divider" aria-hidden="true"></div>
+        </header>
+
+        <div class="e6-placeholder">
+          <div class="e6-placeholder__icon" aria-hidden="true">◈</div>
+          <p class="e6-placeholder__text">Stage en cours de recherche</p>
+          <p class="e6-placeholder__sub">Cette section sera complétée avec mon projet en entreprise (E6) dès l'obtention de mon stage.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ——————————————————————————————————————————
+         SECTION VEILLE TECHNOLOGIQUE
+    —————————————————————————————————————————— -->
+    <section id="veille" class="section watch-section" aria-labelledby="watch-title">
+      <div class="section-container">
+
+        <header class="section-header">
+          <p class="section-label" aria-hidden="true">// 04</p>
+          <h2 id="watch-title" class="section-title">Veille Technologique
+            <span class="section-title__kanji" aria-hidden="true">技術調査</span>
+          </h2>
+          <div class="section-divider" aria-hidden="true"></div>
+        </header>
+
+        <p class="section-intro">
+          La veille technologique est essentielle dans le domaine des réseaux et de la sécurité,
+          un secteur en constante évolution. Je m'informe régulièrement via plusieurs sources.
+        </p>
+
+        <!-- Grille de sources de veille -->
+        <div class="watch-grid watch-grid--4col">
+
+          <!-- Carte Sources -->
+          <div class="watch-card">
+            <div class="watch-card__icon" aria-hidden="true">◉</div>
+            <h3 class="watch-card__title">Sources utilisées</h3>
+            <ul class="watch-sources-list">
+              <li><a href="https://www.cert.ssi.gouv.fr/" target="_blank" rel="noopener noreferrer">ANSSI / CERT-FR</a></li>
+              <li><a href="https://www.it-connect.fr/" target="_blank" rel="noopener noreferrer">IT-Connect</a></li>
+              <li><a href="https://thehackernews.com/" target="_blank" rel="noopener noreferrer">The Hacker News</a></li>
+              <li><a href="https://www.lemagit.fr/" target="_blank" rel="noopener noreferrer">LeMagIT</a></li>
+              <li><a href="https://krebsonsecurity.com/" target="_blank" rel="noopener noreferrer">Krebs on Security</a></li>
+            </ul>
+          </div>
+
+          <!-- Article 1 -->
+          <div class="watch-card watch-card--article">
+            <div class="watch-card__meta">
+              <span class="watch-card__date">Mai 2026</span>
+              <span class="watch-card__source">CERT-FR</span>
+            </div>
+            <h3 class="watch-card__article-title">CVE-2026-42897 — Faille zero-day dans Microsoft Exchange Server</h3>
+            <p class="watch-card__article-desc">
+              Vulnérabilité XSS activement exploitée permettant à un attaquant non authentifié d'exécuter du code à distance via un e-mail piégé dans Outlook Web Access.
+            </p>
+            <a href="https://www.cert.ssi.gouv.fr/alerte/CERTFR-2026-ALE-005/" target="_blank" rel="noopener noreferrer" class="watch-card__btn">
+              Lire l'article ↗
+            </a>
+          </div>
+
+          <!-- Article 2 -->
+          <div class="watch-card watch-card--article">
+            <div class="watch-card__meta">
+              <span class="watch-card__date">Juin 2026</span>
+              <span class="watch-card__source">IT-Connect</span>
+            </div>
+            <h3 class="watch-card__article-title">HTTP/2 Bomb — Serveurs NGINX, Apache et IIS mis KO en moins d'une minute</h3>
+            <p class="watch-card__article-desc">
+              Nouvelle technique d'attaque DoS exploitant le mécanisme HPACK du protocole HTTP/2 pour saturer la RAM des serveurs web sans authentification.
+            </p>
+            <a href="https://www.it-connect.fr/http-2-bomb-moins-dune-minute-suffit-pour-mettre-ko-les-serveurs-nginx-apache-et-iis/" target="_blank" rel="noopener noreferrer" class="watch-card__btn">
+              Lire l'article ↗
+            </a>
+          </div>
+
+          <!-- Article 3 -->
+          <div class="watch-card watch-card--article">
+            <div class="watch-card__meta">
+              <span class="watch-card__date">Mai 2026</span>
+              <span class="watch-card__source">IT-Connect</span>
+            </div>
+            <h3 class="watch-card__article-title">Patch Tuesday Mai 2026 — 120 failles corrigées dont 17 critiques</h3>
+            <p class="watch-card__article-desc">
+              Microsoft corrige 120 vulnérabilités ce mois-ci, dont 17 critiques permettant notamment des exécutions de code à distance. Aucun zero-day cette fois.
+            </p>
+            <a href="https://www.it-connect.fr/patch-tuesday-mai-2026-pas-de-zero-day-mais-120-failles-corrigees/" target="_blank" rel="noopener noreferrer" class="watch-card__btn">
+              Lire l'article ↗
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ——————————————————————————————————————————
+         SECTION 7 : CONTACT
+    —————————————————————————————————————————— -->
+    <section id="contact" class="section contact-section" aria-labelledby="contact-title">
+      <div class="section-container">
+
+        <header class="section-header">
+          <p class="section-label" aria-hidden="true">// 06</p>
+          <h2 id="contact-title" class="section-title">Me Contacter
+            <span class="section-title__kanji" aria-hidden="true">接触</span>
+          </h2>
+          <div class="section-divider" aria-hidden="true"></div>
+        </header>
+
+        <div class="contact-grid">
+
+          <!-- Informations de contact -->
+          <address class="contact-info-block">
+            <h3 class="contact-info-block__title">Coordonnées</h3>
+
+            <a href="mailto:tommarcorelli@gmail.com" class="contact-method">
+              <span class="contact-method__icon" aria-hidden="true">◉</span>
+              <div>
+                <span class="contact-method__label">Email</span>
+                <span class="contact-method__value">tommarcorelli@gmail.com</span>
+              </div>
+            </a>
+
+            <div class="contact-method">
+              <span class="contact-method__icon" aria-hidden="true">◈</span>
+              <div>
+                <span class="contact-method__label">Formation</span>
+                <span class="contact-method__value">BTS SIO SISR — 1ère Année</span>
+              </div>
+            </div>
+
+            <div class="contact-method">
+              <span class="contact-method__icon" aria-hidden="true">◆</span>
+              <div>
+                <span class="contact-method__label">Localisation</span>
+                <span class="contact-method__value">Argenteuil, France</span>
+              </div>
+            </div>
+
+            <div class="contact-method">
+              <span class="contact-method__icon" aria-hidden="true">▶</span>
+              <div>
+                <span class="contact-method__label">Disponibilité</span>
+                <span class="contact-method__value">Alternance / Stage recherché</span>
+              </div>
+            </div>
+
+            <a href="https://github.com/tommarcorelli-crypto" target="_blank" rel="noopener noreferrer" class="contact-method">
+              <span class="contact-method__icon" aria-hidden="true">◈</span>
+              <div>
+                <span class="contact-method__label">GitHub</span>
+                <span class="contact-method__value">github.com/tommarcorelli-crypto</span>
+              </div>
+            </a>
+          </address>
+
+          <!-- Formulaire de contact
+               Aucun inline style, toutes les classes sont dans style.css -->
+          <div class="contact-form-wrapper">
+            <form class="contact-form" action="https://api.web3forms.com/submit" method="POST" novalidate>
+              <fieldset class="contact-form__fieldset">
+                <legend class="contact-form__legend">Envoyer un message</legend>
+
+                <!-- Clé Web3Forms — remplace YOUR_ACCESS_KEY par ta clé sur web3forms.com (gratuit) -->
+                <input type="hidden" name="access_key" value="b12338e5-a9e9-4d7f-b44e-97adddb7a37d" />
+                <input type="hidden" name="subject" value="Nouveau message portfolio — Tom Marcorelli" />
+                <input type="hidden" name="from_name" value="Portfolio Tom Marcorelli" />
+                <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" aria-hidden="true" />
+
+                <div class="form-group">
+                  <label for="contact-name" class="form-label">Nom complet</label>
+                  <input
+                    type="text"
+                    id="contact-name"
+                    name="name"
+                    class="form-input"
+                    placeholder="Jean Dupont"
+                    autocomplete="name"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="contact-email" class="form-label">Adresse email</label>
+                  <input
+                    type="email"
+                    id="contact-email"
+                    name="email"
+                    class="form-input"
+                    placeholder="jean@exemple.fr"
+                    autocomplete="email"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="contact-subject" class="form-label">Sujet</label>
+                  <input
+                    type="text"
+                    id="contact-subject"
+                    name="contact_subject"
+                    class="form-input"
+                    placeholder="Proposition d'alternance"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="contact-message" class="form-label">Message</label>
+                  <textarea
+                    id="contact-message"
+                    name="message"
+                    class="form-input form-input--textarea"
+                    placeholder="Votre message..."
+                    rows="5"
+                    required
+                  ></textarea>
+                </div>
+
+                <button type="submit" class="btn btn--primary btn--full-width">
+                  <span class="btn__icon" aria-hidden="true">◈</span>
+                  Envoyer le message
+                </button>
+              </fieldset>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================================
+       PIED DE PAGE
+  ============================================================ -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-container">
+      <div class="footer-top">
+        <p class="footer-logo">
+          <span class="footer-logo__bracket">[</span>TM<span class="footer-logo__bracket">]</span>
+        </p>
+        <p class="footer-tagline">Tom Marcorelli — BTS SIO SISR · Nexa Digital School, Paris</p>
+        <a href="https://github.com/tommarcorelli-crypto" target="_blank" rel="noopener noreferrer" class="footer-github">
+          <span aria-hidden="true">◈</span> github.com/tommarcorelli-crypto
+        </a>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copy">
+          &copy; <span id="footer-year"></span> Tom Marcorelli · Tous droits réservés
+        </p>
+        <p class="footer-kanji" aria-hidden="true">ネットワーク · セキュリティ · システム</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       SCRIPTS — chargés en fin de body
+  ============================================================ -->
+  <!-- CDN React — requis pour les démos live des projets -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+
+  <!-- Script principal -->
+  <script src="script.js"></script>
+
+  <!-- MODALE REACT DEMO -->
+  <div id="react-demo-modal" aria-modal="true" role="dialog" aria-label="Démo interactive du projet" style="display:none;position:fixed;inset:0;z-index:9100;background:rgba(6,8,10,0.92);backdrop-filter:blur(8px);">
+    <div style="position:relative;width:100%;height:100%;display:flex;flex-direction:column;">
+      <div class="react-demo-modal__header">
+        <div style="display:flex;align-items:center;gap:.75rem;">
+          <span class="react-demo-modal__badge">⚡ DÉMO LIVE</span>
+          <span id="react-demo-title" class="react-demo-modal__title"></span>
+        </div>
+        <button class="react-demo-modal__close" onclick="closeReactDemo()" aria-label="Fermer la démo">✕</button>
+      </div>
+      <div id="react-demo-root" style="flex:1;overflow:auto;"></div>
+    </div>
+  </div>
+
+  <!-- MODALE FICHE -->
+  <div id="fiche-modal" aria-modal="true" role="dialog" aria-label="Fiche de réalisation"
+    style="display:none;position:fixed;inset:0;z-index:9000;">
+    <iframe id="fiche-modal-frame" src="" title="Fiche de réalisation"
+      style="width:100%;height:100vh;border:none;display:block;" loading="lazy"></iframe>
+  </div>
+
+  <style>
+    #fiche-modal.is-open { display:block !important; }
+    @keyframes modal-in { from{opacity:0;transform:scale(.98)} to{opacity:1;transform:scale(1)} }
+    #fiche-modal.is-open iframe { animation:modal-in .2s ease; }
+  </style>
+
+  <script>
+    function openFicheModal(url) {
+      const modal = document.getElementById('fiche-modal');
+      document.getElementById('fiche-modal-frame').src = url;
+      modal.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeFicheModal() {
+      document.getElementById('fiche-modal').classList.remove('is-open');
+      document.body.style.overflow = '';
+      setTimeout(() => { document.getElementById('fiche-modal-frame').src = ''; }, 200);
+    }
+
+    // Le bouton ← Portfolio dans la fiche envoie ce message
+    window.addEventListener('message', function(e) {
+      if (e.data === 'close-fiche-modal') closeFicheModal();
+    });
+
+    // Fermer avec Échap
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && document.getElementById('fiche-modal').classList.contains('is-open'))
+        closeFicheModal();
+    });
+  </script>
+
+
+</body>
+</html>

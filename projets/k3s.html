@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab K3s — Fiche de Réalisation — Tom Marcorelli</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #06080a;
+      --bg-card:   #0f1a22;
+      --bg-card2:  #0d1520;
+      --cyan:      #dff0fb;
+      --gold:      #eab308;
+      --text:      #ddeef8;
+      --muted:     #a8c4d8;
+      --dim:       #5a7a8a;
+      --border:    rgba(223,240,251,0.18);
+      --border-s:  rgba(223,240,251,0.55);
+      --mono:      'Share Tech Mono', monospace;
+      --display:   'Orbitron', sans-serif;
+      --body:      'Noto Sans JP', sans-serif;
+      --glow-c:    0 0 8px rgba(223,240,251,0.8), 0 0 24px rgba(223,240,251,0.3);
+      --glow-g:    0 0 8px rgba(234,179,8,0.8), 0 0 24px rgba(234,179,8,0.3);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--body);
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(6,8,10,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.75rem 2rem;
+    }
+    .topbar__back {
+      display: flex; align-items: center; gap: 0.5rem;
+      color: var(--cyan); text-decoration: none;
+      font-family: var(--mono); font-size: 0.85rem;
+      transition: color 0.2s, text-shadow 0.2s;
+    }
+    .topbar__back:hover { color: var(--gold); text-shadow: var(--glow-g); }
+    .topbar__title {
+      font-family: var(--display); font-size: 0.75rem;
+      color: var(--muted); letter-spacing: 0.1em;
+    }
+    .topbar__badge {
+      background: rgba(234,179,8,0.12);
+      border: 1px solid rgba(234,179,8,0.4);
+      color: var(--gold); font-family: var(--mono);
+      font-size: 0.7rem; padding: 0.25rem 0.6rem; border-radius: 4px;
+    }
+
+    /* ── LAYOUT ── */
+    .wrapper {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      max-width: 1300px; margin: 0 auto;
+      min-height: calc(100vh - 56px);
+    }
+
+    /* ── SIDEBAR NAV ── */
+    .sidebar {
+      position: sticky; top: 56px;
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+      border-right: 1px solid var(--border);
+      padding: 2rem 1rem;
+    }
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .nav-section { margin-bottom: 2rem; }
+    .nav-section__title {
+      font-family: var(--mono); font-size: 0.65rem;
+      color: var(--dim); letter-spacing: 0.15em;
+      text-transform: uppercase; margin-bottom: 0.75rem;
+      padding-left: 0.5rem;
+    }
+    .nav-link {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.45rem 0.75rem; border-radius: 6px;
+      color: var(--muted); text-decoration: none;
+      font-size: 0.88rem; font-family: var(--body);
+      transition: all 0.2s; border-left: 2px solid transparent;
+      margin-bottom: 0.15rem;
+    }
+    .nav-link:hover, .nav-link.active {
+      color: var(--cyan); background: rgba(223,240,251,0.06);
+      border-left-color: var(--cyan);
+    }
+    .nav-link--sub {
+      font-size: 0.8rem; padding-left: 1.5rem;
+      color: var(--dim);
+    }
+    .nav-link--sub:hover { color: var(--muted); }
+    .nav-link__num {
+      font-family: var(--mono); font-size: 0.7rem;
+      color: var(--gold); min-width: 20px;
+    }
+
+    /* ── CONTENT ── */
+    .content {
+      padding: 3rem 3rem 6rem;
+      max-width: 860px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero__label {
+      font-family: var(--mono); font-size: 0.75rem;
+      color: var(--gold); letter-spacing: 0.15em;
+      margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .hero__label::before { content: ''; display: inline-block; width: 20px; height: 1px; background: var(--gold); }
+    .hero__title {
+      font-family: var(--display); font-size: 2rem;
+      color: var(--cyan); font-weight: 900;
+      text-shadow: var(--glow-c);
+      line-height: 1.2; margin-bottom: 0.5rem;
+    }
+    .hero__subtitle {
+      font-family: var(--mono); font-size: 0.9rem;
+      color: var(--gold); margin-bottom: 1.5rem;
+    }
+    .hero__tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .tag {
+      padding: 0.25rem 0.7rem; border-radius: 4px;
+      font-family: var(--mono); font-size: 0.7rem;
+      border: 1px solid rgba(223,240,251,0.25);
+      color: var(--muted);
+    }
+    .tag--gold { border-color: rgba(234,179,8,0.4); color: var(--gold); background: rgba(234,179,8,0.07); }
+    .tag--cyan { border-color: rgba(223,240,251,0.4); color: var(--cyan); background: rgba(223,240,251,0.05); }
+
+    .hero__meta {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 0.75rem;
+    }
+    .meta-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.75rem 1rem;
+    }
+    .meta-item__label {
+      font-family: var(--mono); font-size: 0.65rem;
+      color: var(--dim); letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 0.25rem;
+    }
+    .meta-item__value { color: var(--text); font-size: 0.88rem; }
+
+    /* ── SECTIONS ── */
+    .section { margin-bottom: 3rem; }
+    .section__header {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 1.5rem; padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .section__num {
+      font-family: var(--display); font-size: 0.7rem;
+      color: var(--gold); background: rgba(234,179,8,0.1);
+      border: 1px solid rgba(234,179,8,0.3);
+      padding: 0.2rem 0.5rem; border-radius: 4px;
+      min-width: 36px; text-align: center;
+    }
+    .section__title {
+      font-family: var(--display); font-size: 1.2rem;
+      color: var(--cyan); font-weight: 700;
+    }
+    h3 {
+      font-family: var(--mono); font-size: 0.95rem;
+      color: var(--gold); margin: 1.5rem 0 0.75rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    h3::before { content: '▶'; font-size: 0.6rem; color: var(--gold); }
+    p { color: var(--muted); margin-bottom: 0.75rem; font-size: 0.95rem; }
+
+    /* ── STACK TABLE ── */
+    .stack-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 0.85rem; margin-bottom: 1rem;
+    }
+    .stack-table th {
+      background: rgba(223,240,251,0.06);
+      color: var(--cyan); font-family: var(--mono);
+      font-size: 0.7rem; letter-spacing: 0.1em;
+      padding: 0.6rem 1rem; text-align: left;
+      border-bottom: 1px solid var(--border-s);
+      text-transform: uppercase;
+    }
+    .stack-table td {
+      padding: 0.5rem 1rem; border-bottom: 1px solid var(--border);
+      color: var(--muted); vertical-align: middle;
+    }
+    .stack-table tr:hover td { background: rgba(223,240,251,0.03); }
+    .stack-table td:first-child { color: var(--gold); font-family: var(--mono); font-weight: 700; }
+    .stack-table td:nth-child(2) { color: var(--dim); font-family: var(--mono); font-size: 0.8rem; }
+
+    /* ── INFO BOX ── */
+    .info-box {
+      background: rgba(223,240,251,0.04);
+      border: 1px solid rgba(223,240,251,0.15);
+      border-left: 3px solid var(--cyan);
+      border-radius: 0 8px 8px 0;
+      padding: 0.85rem 1.1rem; margin: 1rem 0;
+      font-size: 0.88rem; color: var(--muted);
+      display: flex; gap: 0.75rem; align-items: flex-start;
+    }
+    .info-box__icon { color: var(--cyan); flex-shrink: 0; margin-top: 0.15rem; }
+
+    /* ── CODE BLOCK ── */
+    .code-block {
+      background: #0a0d12;
+      border: 1px solid rgba(223,240,251,0.12);
+      border-top: 2px solid var(--cyan);
+      border-radius: 0 0 8px 8px; overflow-x: auto;
+      margin: 1rem 0;
+    }
+    .code-block__header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.4rem 1rem;
+      background: rgba(223,240,251,0.05);
+      border-bottom: 1px solid rgba(223,240,251,0.08);
+    }
+    .code-block__lang {
+      font-family: var(--mono); font-size: 0.65rem;
+      color: var(--gold); letter-spacing: 0.1em;
+    }
+    .code-block__dots { display: flex; gap: 0.4rem; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot--r { background: #ff5f57; }
+    .dot--y { background: #febc2e; }
+    .dot--g { background: #28c840; }
+    pre {
+      padding: 1rem 1.25rem;
+      font-family: var(--mono); font-size: 0.82rem;
+      line-height: 1.7; color: #c8d8f0;
+    }
+    .cm { color: #5a7a9a; }
+
+    /* ── PROOF BLOCKS ── */
+    .proof {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .proof__header {
+      display: flex; align-items: center; gap: 0.75rem;
+      margin-bottom: 1rem; padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .proof__num {
+      background: rgba(234,179,8,0.12);
+      border: 1px solid rgba(234,179,8,0.35);
+      color: var(--gold); font-family: var(--display);
+      font-size: 0.7rem; padding: 0.25rem 0.5rem;
+      border-radius: 4px; min-width: 32px; text-align: center;
+    }
+    .proof__title { font-family: var(--mono); font-size: 0.95rem; color: var(--cyan); }
+    .proof img {
+      width: 100%; border-radius: 6px;
+      border: 1px solid var(--border);
+      margin: 1rem 0 0.5rem;
+    }
+    .proof__caption {
+      font-family: var(--mono); font-size: 0.75rem;
+      color: var(--dim); text-align: center;
+      margin-bottom: 0.75rem; font-style: italic;
+    }
+    .proof__explain {
+      font-size: 0.88rem; color: var(--muted);
+      padding: 0.6rem 0.9rem;
+      border-left: 2px solid var(--gold);
+      background: rgba(234,179,8,0.04);
+      border-radius: 0 6px 6px 0;
+      margin-top: 0.25rem;
+    }
+
+    /* ── TEST TABLE ── */
+    .test-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 0.85rem; margin: 1rem 0;
+    }
+    .test-table th {
+      background: rgba(234,179,8,0.08);
+      color: var(--gold); font-family: var(--mono);
+      font-size: 0.7rem; letter-spacing: 0.08em;
+      padding: 0.6rem 1rem; text-align: left;
+      border-bottom: 1px solid rgba(234,179,8,0.3);
+      text-transform: uppercase;
+    }
+    .test-table td {
+      padding: 0.55rem 1rem; border-bottom: 1px solid var(--border);
+      color: var(--muted); vertical-align: middle;
+    }
+    .test-table tr:hover td { background: rgba(234,179,8,0.03); }
+    .test-table td:first-child { font-family: var(--mono); font-size: 0.82rem; color: var(--cyan); }
+    .test-table td:last-child { color: #4ade80; font-size: 0.85rem; }
+
+    /* ── BILAN TABLE ── */
+    .bilan-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 0.85rem; margin: 1rem 0;
+    }
+    .bilan-table th {
+      background: rgba(223,240,251,0.06);
+      color: var(--cyan); font-family: var(--mono);
+      font-size: 0.7rem; padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--border-s);
+      text-align: left; text-transform: uppercase;
+    }
+    .bilan-table td {
+      padding: 0.55rem 1rem; border-bottom: 1px solid var(--border);
+      color: var(--muted); vertical-align: top;
+    }
+    .bilan-table td:first-child { color: var(--gold); font-family: var(--mono); font-weight: 700; min-width: 60px; }
+
+    /* ── BULLET LIST ── */
+    .bullet-list { list-style: none; padding: 0; margin: 0.5rem 0 1rem; }
+    .bullet-list li {
+      display: flex; gap: 0.6rem; align-items: flex-start;
+      color: var(--muted); font-size: 0.92rem;
+      padding: 0.3rem 0;
+    }
+    .bullet-list li::before {
+      content: '◆'; color: var(--gold);
+      font-size: 0.55rem; margin-top: 0.45rem; flex-shrink: 0;
+    }
+
+    /* ── FOOTER ── */
+    .fiche-footer {
+      margin-top: 4rem; padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .fiche-footer__text {
+      font-family: var(--mono); font-size: 0.75rem;
+      color: var(--dim);
+    }
+    .fiche-footer__kanji {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 1.2rem; color: var(--border);
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .wrapper { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .content { padding: 2rem 1.25rem 4rem; }
+      .hero__title { font-size: 1.5rem; }
+    }
+
+    /* ── SCROLLSPY ANIMATION ── */
+    .section { opacity: 0; transform: translateY(20px); transition: opacity 0.4s ease, transform 0.4s ease; }
+    .section.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── CURSOR MANGA ── */
+    * { cursor: none !important; }
+    @keyframes mangaInkFade { 0%{opacity:1;transform:translate(-50%,-50%) scale(1)} 100%{opacity:0;transform:translate(-50%,-50%) scale(0.3)} }
+    @keyframes mangaSplash { 0%{opacity:1;transform:translate(-50%,-50%) scale(1)} 100%{opacity:0;transform:translate(-50%,-50%) scale(0.2)} }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <a href="javascript:void(0)" class="topbar__back" onclick="window.parent.postMessage('close-fiche-modal','*')">
+      ← Portfolio
+    </a>
+    <span class="topbar__title">FICHE DE RÉALISATION</span>
+    <span class="topbar__badge">LAB K3S</span>
+  </header>
+
+  <div class="wrapper">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar" aria-label="Navigation de la fiche">
+      <div class="nav-section">
+        <p class="nav-section__title">Navigation</p>
+        <a href="#presentation" class="nav-link"><span class="nav-link__num">01</span> Présentation</a>
+        <a href="#objectifs" class="nav-link"><span class="nav-link__num">02</span> Objectifs</a>
+        <a href="#schema" class="nav-link"><span class="nav-link__num">03</span> Schéma</a>
+        <a href="#realisation" class="nav-link"><span class="nav-link__num">04</span> Réalisation</a>
+        <a href="#etape1" class="nav-link nav-link--sub">Étape 1 – Réseau</a>
+        <a href="#etape2" class="nav-link nav-link--sub">Étape 2 – K3s</a>
+        <a href="#etape3" class="nav-link nav-link--sub">Étape 3 – Longhorn</a>
+        <a href="#etape4" class="nav-link nav-link--sub">Étape 4 – Monitoring</a>
+        <a href="#etape5" class="nav-link nav-link--sub">Étape 5 – Cert-Manager</a>
+        <a href="#etape6" class="nav-link nav-link--sub">Étape 6 – GitOps</a>
+        <a href="#etape7" class="nav-link nav-link--sub">Étape 7 – Harbor</a>
+        <a href="#etape8" class="nav-link nav-link--sub">Étape 8 – Kyverno</a>
+        <a href="#etape9" class="nav-link nav-link--sub">Étape 9 – MetalLB</a>
+        <a href="#tests" class="nav-link"><span class="nav-link__num">05</span> Tests</a>
+        <a href="#bilan" class="nav-link"><span class="nav-link__num">06</span> Bilan</a>
+      </div>
+      <div class="nav-section">
+        <p class="nav-section__title">Ressources</p>
+        <a href="fiche_k3s.pdf" target="_blank" class="nav-link">
+          <span class="nav-link__num">↓</span> Fiche PDF
+        </a>
+      </div>
+    </nav>
+
+    <!-- CONTENT -->
+    <main class="content">
+
+      <!-- HERO -->
+      <div class="hero">
+        <p class="hero__label">PROJET DÉCOUVERTE · BTS SIO SISR</p>
+        <h1 class="hero__title">Lab Kubernetes K3s<br>Cluster complet</h1>
+        <p class="hero__subtitle">GitOps · DevSecOps · Monitoring · Stockage distribué</p>
+        <div class="hero__tags">
+          <span class="tag tag--gold">K3s v1.35.5</span>
+          <span class="tag tag--cyan">Helm v3.21</span>
+          <span class="tag">Longhorn</span>
+          <span class="tag">Prometheus</span>
+          <span class="tag">Grafana</span>
+          <span class="tag">ArgoCD</span>
+          <span class="tag">Harbor + Trivy</span>
+          <span class="tag">Kyverno</span>
+          <span class="tag">MetalLB</span>
+          <span class="tag">Cert-Manager</span>
+          <span class="tag">Traefik</span>
+          <span class="tag">Gitea</span>
+          <span class="tag">WordPress</span>
+        </div>
+        <div class="hero__meta">
+          <div class="meta-item">
+            <p class="meta-item__label">Étudiant</p>
+            <p class="meta-item__value">Tom Marcorelli</p>
+          </div>
+          <div class="meta-item">
+            <p class="meta-item__label">Formation</p>
+            <p class="meta-item__value">BTS SIO SISR</p>
+          </div>
+          <div class="meta-item">
+            <p class="meta-item__label">École</p>
+            <p class="meta-item__value">Nexa Digital School</p>
+          </div>
+          <div class="meta-item">
+            <p class="meta-item__label">Année</p>
+            <p class="meta-item__value">2025 – 2026</p>
+          </div>
+          <div class="meta-item">
+            <p class="meta-item__label">Durée</p>
+            <p class="meta-item__value">~8 heures</p>
+          </div>
+          <div class="meta-item">
+            <p class="meta-item__label">Environnement</p>
+            <p class="meta-item__value">VMware · 4 VMs Debian 12</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1. PRÉSENTATION -->
+      <section class="section" id="presentation">
+        <div class="section__header">
+          <span class="section__num">01</span>
+          <h2 class="section__title">Présentation du projet</h2>
+        </div>
+        <h3>Contexte</h3>
+        <p>Dans le cadre du BTS SIO option SISR, ce projet consiste à déployer une infrastructure Kubernetes complète en environnement virtualisé sur VMware Workstation. Il reproduit une architecture de production moderne basée sur K3s, la distribution Kubernetes légère certifiée CNCF, avec 4 machines virtuelles Debian 12 interconnectées sur un réseau dédié VMnet11.</p>
+        <h3>Problématique</h3>
+        <p>Comment déployer et opérer un cluster Kubernetes multi-nœuds en intégrant les pratiques DevOps (GitOps), DevSecOps (scan CVE, politiques d'admission) et Monitoring (métriques, alertes) sur une infrastructure bare-metal virtualisée ?</p>
+        <h3>Stack technique déployée</h3>
+        <table class="stack-table">
+          <thead><tr><th>Composant</th><th>URL / Accès</th><th>Rôle</th></tr></thead>
+          <tbody>
+            <tr><td>K3s v1.35.5</td><td>kubectl get nodes</td><td>Orchestrateur Kubernetes – 1 master + 2 workers + 1 storage</td></tr>
+            <tr><td>Longhorn</td><td>https://longhorn.k3s.local</td><td>Stockage persistant distribué – StorageClass par défaut</td></tr>
+            <tr><td>Prometheus</td><td>https://prometheus.k3s.local</td><td>Collecte et stockage des métriques du cluster</td></tr>
+            <tr><td>Grafana</td><td>https://grafana.k3s.local</td><td>Dashboards de visualisation des métriques en temps réel</td></tr>
+            <tr><td>Alertmanager</td><td>https://alertmanager.k3s.local</td><td>Gestion et routage des alertes</td></tr>
+            <tr><td>Gitea</td><td>https://gitea.k3s.local</td><td>Forge Git auto-hébergée – dépôt k3s-apps</td></tr>
+            <tr><td>ArgoCD</td><td>https://argocd.k3s.local</td><td>Déploiement continu GitOps – synchronisation automatique</td></tr>
+            <tr><td>Harbor</td><td>https://harbor.k3s.local</td><td>Registry Docker privé + scan CVE Trivy</td></tr>
+            <tr><td>WordPress</td><td>https://wordpress.k3s.local</td><td>Application CMS de démonstration + MariaDB</td></tr>
+            <tr><td>Cert-Manager</td><td>–</td><td>Certificats TLS auto-signés pour tous les Ingress</td></tr>
+            <tr><td>Kyverno</td><td>–</td><td>Politiques de sécurité – Admission Controller K8s</td></tr>
+            <tr><td>MetalLB</td><td>192.168.110.100-120</td><td>Load Balancer bare-metal – IPs externes réelles</td></tr>
+            <tr><td>Traefik</td><td>–</td><td>Ingress Controller intégré K3s</td></tr>
+            <tr><td>Helm v3.21</td><td>–</td><td>Gestionnaire de paquets Kubernetes</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 2. OBJECTIFS -->
+      <section class="section" id="objectifs">
+        <div class="section__header">
+          <span class="section__num">02</span>
+          <h2 class="section__title">Objectifs techniques</h2>
+        </div>
+        <ul class="bullet-list">
+          <li>Déployer un cluster K3s multi-nœuds (1 master + 2 workers + 1 storage) sur réseau VMnet11</li>
+          <li>Mettre en place du stockage persistant distribué avec réplication multi-nœuds (Longhorn)</li>
+          <li>Déployer un monitoring complet : collecte métriques (Prometheus), dashboards (Grafana), alertes (Alertmanager)</li>
+          <li>Implémenter un pipeline GitOps de bout en bout : dépôt Git (Gitea) → déploiement automatique (ArgoCD)</li>
+          <li>Mettre en place une registry Docker privée avec scan CVE automatique (Harbor + Trivy)</li>
+          <li>Sécuriser le cluster avec des politiques d'admission K8s (Kyverno) en mode Enforce</li>
+          <li>Gérer les certificats TLS de tous les services automatiquement (Cert-Manager)</li>
+          <li>Exposer des services avec de vraies IPs externes sur un cluster bare-metal (MetalLB)</li>
+        </ul>
+      </section>
+
+      <!-- 3. SCHÉMA -->
+      <section class="section" id="schema">
+        <div class="section__header">
+          <span class="section__num">03</span>
+          <h2 class="section__title">Schéma de l'infrastructure</h2>
+        </div>
+        <img src="../assets/schema_k3s.png" alt="Schéma infrastructure Lab K3s" style="width:100%;border-radius:8px;border:1px solid var(--border);"/>
+        <p style="text-align:center;font-family:var(--mono);font-size:0.75rem;color:var(--dim);margin-top:0.5rem;font-style:italic;">Internet → Routeur NAT VMware → 4 VMs Debian 12 sur VMnet11 → Composants K3s</p>
+      </section>
+
+      <!-- 4. RÉALISATION -->
+      <section class="section" id="realisation">
+        <div class="section__header">
+          <span class="section__num">04</span>
+          <h2 class="section__title">Réalisation technique</h2>
+        </div>
+
+        <!-- Étape 1 -->
+        <div id="etape1">
+          <h3>Étape 1 – Préparation de l'infrastructure réseau</h3>
+          <table class="stack-table">
+            <thead><tr><th>VM</th><th>Rôle</th><th>CPU</th><th>RAM</th><th>IP VMnet11</th></tr></thead>
+            <tbody>
+              <tr><td>k3s-master</td><td>Control Plane + Helm</td><td>2 vCPU</td><td>7 Go</td><td>192.168.110.10</td></tr>
+              <tr><td>k3s-worker-1</td><td>Worker Node</td><td>2 vCPU</td><td>7 Go</td><td>192.168.110.11</td></tr>
+              <tr><td>k3s-worker-2</td><td>Worker Node</td><td>2 vCPU</td><td>7 Go</td><td>192.168.110.12</td></tr>
+              <tr><td>k3s-storage</td><td>Storage Node (Longhorn)</td><td>2 vCPU</td><td>7 Go</td><td>192.168.110.13</td></tr>
+            </tbody>
+          </table>
+          <div class="info-box">
+            <span class="info-box__icon">ℹ</span>
+            <span>Chaque VM a deux interfaces réseau : ens33 en DHCP sur le réseau NAT VMware pour accéder à Internet, et ens34 en IP statique sur VMnet11 pour les communications internes K3s. Sans cette double interface, les nœuds ne pourraient pas rejoindre le cluster ET accéder aux dépôts apt.</span>
+          </div>
+          <div class="code-block">
+            <div class="code-block__header">
+              <div class="code-block__dots"><div class="dot dot--r"></div><div class="dot dot--y"></div><div class="dot dot--g"></div></div>
+              <span class="code-block__lang">BASH</span>
+            </div>
+            <pre><span class="cm"># Vérification de la configuration réseau sur chaque VM</span>
+ip a
+
+<span class="cm"># Test de connectivité inter-nœuds (obligatoire avant K3s)</span>
+ping -c 3 192.168.110.11   <span class="cm"># master → worker-1</span>
+ping -c 3 192.168.110.12   <span class="cm"># master → worker-2</span>
+ping -c 3 192.168.110.13   <span class="cm"># master → storage</span></pre>
+          </div>
+        </div>
+
+        <!-- Étape 2 -->
+        <div id="etape2">
+          <h3>Étape 2 – Déploiement du cluster K3s</h3>
+          <div class="info-box">
+            <span class="info-box__icon">ℹ</span>
+            <span>K3s est choisi car il est packagé en un seul binaire &lt; 100 Mo, idéal pour un lab à ressources limitées. Il intègre nativement Traefik comme Ingress Controller. Le script get.k3s.io automatise toute la configuration systemd.</span>
+          </div>
+          <div class="code-block">
+            <div class="code-block__header">
+              <div class="code-block__dots"><div class="dot dot--r"></div><div class="dot dot--y"></div><div class="dot dot--g"></div></div>
+              <span class="code-block__lang">BASH</span>
+            </div>
+            <pre><span class="cm"># Sur le master : installation du control plane</span>
+curl -sfL https://get.k3s.io | sh -
+
+<span class="cm"># Récupération du token partagé pour les workers</span>
+sudo cat /var/lib/rancher/k3s/server/node-token
+
+<span class="cm"># Sur chaque worker et k3s-storage</span>
+curl -sfL https://get.k3s.io | K3S_URL=https://192.168.110.10:6443 K3S_TOKEN=&lt;token&gt; sh -
+
+<span class="cm"># Vérification depuis le master</span>
+sudo kubectl get nodes</pre>
+          </div>
+        </div>
+
+        <!-- Étape 3 -->
+        <div id="etape3">
+          <h3>Étape 3 – Stockage persistant (Longhorn)</h3>
+          <div class="info-box">
+            <span class="info-box__icon">ℹ</span>
+            <span>Par défaut, Kubernetes ne fournit pas de stockage persistant. Sans Longhorn, si un pod MariaDB redémarre, ses données sont perdues. Longhorn crée des volumes avec réplication sur plusieurs nœuds. Helm gère automatiquement les 20+ ressources K8s nécessaires.</span>
+          </div>
+          <div class="code-block">
+            <div class="code-block__header">
+              <div class="code-block__dots"><div class="dot dot--r"></div><div class="dot dot--y"></div><div class="dot dot--g"></div></div>
+              <span class="code-block__lang">BASH</span>
+            </div>
+            <pre>helm repo add longhorn https://charts.longhorn.io && helm repo update
+helm install longhorn longhorn/longhorn --namespace longhorn-system --create-namespace
+kubectl get pods -n longhorn-system
+kubectl get storageclass</pre>
+          </div>
+        </div>
+
+        <!-- Étape 4 -->
+        <div id="etape4">
+          <h3>Étape 4 – Monitoring (Prometheus + Grafana + Alertmanager)</h3>
+          <div class="info-box">
+            <span class="info-box__icon">ℹ</span>
+            <span>Un cluster sans monitoring est aveugle. Le chart kube-prometheus-stack installe en une commande Prometheus (collecte), Grafana (visualisation), Alertmanager (alertes), node-exporter et kube-state-metrics.</span>
+          </div>
+          <div class="code-block">
+            <div class="code-block__header">
+              <div class="code-block__dots"><div class="dot dot--r"></div><div class="dot dot--y"></div><div class="dot dot--g"></div></div>
+              <span class="code-block__lang">BASH</span>
+            </div>
+            <pre>helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+kubectl create namespace monitoring
+helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --namespace monitoring
+kubectl get svc -n monitoring
+kubectl apply -f grafana-ingress.yaml
+kubectl apply -f all-ingress-https.yaml</pre>
+          </div>
+        </div>
+
+        <!-- Étape 5 -->
+        <div id="etape5">
+          <h3>Étape 5 – Certificats TLS (Cert-Manager)</h3>
+          <div class="info-box">
+            <span class="info-box__icon">ℹ</span>
+            <span>Exposer des services en HTTP simple est une mauvaise pratique : les navigateurs bloquent les requêtes non sécurisées et ArgoCD refuse de fonctionner sans HTTPS. Cert-Manager surveille les Ingress annotés et génère les Secrets TLS sans intervention manuelle.</span>
+          </div>
+          <div class="code-block">
+            <div class="code-block__header">
+              <div class="code-block__dots"><div class="dot dot--r"></div><div class="dot dot--y"></div><div class="dot dot--g"></div></div>
+              <span class="code-block__lang">BASH</span>
+            </div>
+            <pre>sudo kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.0/cert-manager.yaml
+kubectl apply -f cluster-issuer.yaml
+kubectl get pods -n cert-manager</pre>
+          </div>
+        </div>
+
+        <!-- Étape 6 -->
+        <div id="etape6">
+          <h3>Étape 6 – Pipeline GitOps (Gitea + ArgoCD)</h3>
+          <div class="info-box">
+            <span class="info-box__icon">ℹ</span>
+            <span>Le GitOps est un paradigme où Git est la source de vérité unique. ArgoCD surveille le dépôt k3s-apps sur Gitea et synchronise automatiquement le cluster à chaque commit. L'état réel du cluster correspond toujours à ce qui est décrit dans Git.</span>
+          </div>
+          <div class="code-block">
+            <div class="code-block__header">
+              <div class="code-block__dots"><div class="dot dot--r"></div><div class="dot dot--y"></div><div class="dot dot--g"></div></div>
+              <span class="code-block__lang">BASH</span>
+            </div>
+            <pre>helm install gitea gitea-charts/gitea --namespace gitea --create-namespace
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl apply -f argocd-app.yaml
+kubectl get applications -n argocd</pre>
+          </div>
+        </div>
+
+        <!-- Étape 7 -->
+        <div id="etape7">
+          <h3>Étape 7 – Registry privée et scan CVE (Harbor + Trivy)</h3>
+          <div class="info-box">
+            <span class="info-box__icon">ℹ</span>
+            <span>Les images publiques Docker Hub peuvent contenir des CVE connues. Harbor intègre Trivy pour scanner automatiquement chaque image dès le push. Objectif : démontrer le cycle DevSecOps complet – détection CVE sur v1, correction Dockerfile, validation sur v2.</span>
+          </div>
+          <div class="code-block">
+            <div class="code-block__header">
+              <div class="code-block__dots"><div class="dot dot--r"></div><div class="dot dot--y"></div><div class="dot dot--g"></div></div>
+              <span class="code-block__lang">BASH</span>
+            </div>
+            <pre>helm install harbor harbor/harbor --namespace harbor --create-namespace \
+  --set expose.type=ingress --set expose.ingress.hosts.core=harbor.k3s.local \
+  --set externalURL=https://harbor.k3s.local \
+  --set persistence.persistentVolumeClaim.registry.storageClass=longhorn
+
+<span class="cm"># Build et push myapp:v1 (avec vulnérabilité CVE-2026-6732)</span>
+docker build -t harbor.k3s.local/k3s-lab/myapp:v1 .
+docker push harbor.k3s.local/k3s-lab/myapp:v1
+
+<span class="cm"># Correction : RUN apk upgrade --no-cache dans le Dockerfile</span>
+docker build -t harbor.k3s.local/k3s-lab/myapp:v2 .
+docker push harbor.k3s.local/k3s-lab/myapp:v2</pre>
+          </div>
+        </div>
+
+        <!-- Étape 8 -->
+        <div id="etape8">
+          <h3>Étape 8 – Politiques de sécurité (Kyverno)</h3>
+          <div class="info-box">
+            <span class="info-box__icon">ℹ</span>
+            <span>Par défaut, n'importe quel utilisateur peut déployer un pod en root – faille critique. Kyverno s'installe comme Admission Webhook : il intercepte les requêtes avant acceptation par l'API Server et les rejette si elles violent une politique. Mode Enforce = blocage immédiat.</span>
+          </div>
+          <div class="code-block">
+            <div class="code-block__header">
+              <div class="code-block__dots"><div class="dot dot--r"></div><div class="dot dot--y"></div><div class="dot dot--g"></div></div>
+              <span class="code-block__lang">BASH</span>
+            </div>
+            <pre>helm install kyverno kyverno/kyverno --namespace kyverno --create-namespace
+kubectl apply -f kyverno-policy.yaml
+
+<span class="cm"># Test : tentative de créer un pod en root</span>
+sudo kubectl run test-root --image=nginx --namespace=default
+<span class="cm"># → Error from server: admission webhook denied the request</span></pre>
+          </div>
+        </div>
+
+        <!-- Étape 9 -->
+        <div id="etape9">
+          <h3>Étape 9 – Load Balancer bare-metal (MetalLB)</h3>
+          <div class="info-box">
+            <span class="info-box__icon">ℹ</span>
+            <span>Sur un cluster bare-metal, les services LoadBalancer restent en état "Pending" faute d'un cloud provider. MetalLB résout ce problème en mode Layer 2 : il répond aux requêtes ARP pour la plage d'IPs réservée, rendant les services accessibles directement depuis Windows.</span>
+          </div>
+          <div class="code-block">
+            <div class="code-block__header">
+              <div class="code-block__dots"><div class="dot dot--r"></div><div class="dot dot--y"></div><div class="dot dot--g"></div></div>
+              <span class="code-block__lang">BASH</span>
+            </div>
+            <pre>sudo kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.5/config/manifests/metallb-native.yaml
+kubectl apply -f metallb-pool.yaml   <span class="cm"># IPAddressPool 192.168.110.100-120</span>
+kubectl apply -f metallb-l2.yaml     <span class="cm"># L2Advertisement</span>
+kubectl get svc nginx-lb             <span class="cm"># Vérification IP externe assignée</span></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. TESTS -->
+      <section class="section" id="tests">
+        <div class="section__header">
+          <span class="section__num">05</span>
+          <h2 class="section__title">Tests et Validation</h2>
+        </div>
+        <table class="test-table">
+          <thead><tr><th>Test effectué</th><th>Résultat attendu</th><th>Validation</th></tr></thead>
+          <tbody>
+            <tr><td>kubectl get nodes</td><td>4 nœuds Ready – v1.35.5+k3s1</td><td>✅ Cluster K3s opérationnel</td></tr>
+            <tr><td>Ping inter-nœuds (VMnet11)</td><td>0 % packet loss, ~0,5 ms</td><td>✅ Réseau interne fonctionnel</td></tr>
+            <tr><td>Dashboard Longhorn</td><td>2 volumes Healthy, 4 nœuds</td><td>✅ Stockage persistant actif</td></tr>
+            <tr><td>https://grafana.k3s.local</td><td>Dashboards K8s temps réel</td><td>✅ Monitoring opérationnel</td></tr>
+            <tr><td>Commit Gitea → ArgoCD</td><td>Sync automatique &lt; 3 min</td><td>✅ Pipeline GitOps fonctionnel</td></tr>
+            <tr><td>Harbor scan myapp:v1</td><td>CVE-2026-6732 Haute détectée</td><td>✅ Scan Trivy opérationnel</td></tr>
+            <tr><td>Harbor scan myapp:v2</td><td>Aucune vulnérabilité</td><td>✅ Correction CVE validée</td></tr>
+            <tr><td>kubectl run test-root</td><td>Pod bloqué par Kyverno</td><td>✅ Politique sécurité active</td></tr>
+            <tr><td>Service LoadBalancer nginx</td><td>IP 192.168.110.101 assignée</td><td>✅ MetalLB fonctionnel</td></tr>
+            <tr><td>https://wordpress.k3s.local</td><td>WordPress + MariaDB accessible</td><td>✅ App + PVC Longhorn OK</td></tr>
+            <tr><td>Certificats TLS (tous services)</td><td>Cert valide généré automatiquement</td><td>✅ Cert-Manager opérationnel</td></tr>
+          </tbody>
+        </table>
+
+        <!-- Preuves -->
+        <div class="proof">
+          <div class="proof__header">
+            <span class="proof__num">P1</span>
+            <span class="proof__title">Configuration réseau des VMs</span>
+          </div>
+          <div class="info-box"><span class="info-box__icon">ℹ</span><span>On vérifie que chaque VM dispose bien de ses deux interfaces : ens33 (NAT) et ens34 (VMnet11 statique). C'est le prérequis absolu avant toute installation K3s.</span></div>
+          <img src="../assets/K3s/image25.png" alt="Fig. 1 – /etc/network/interfaces sur k3s-worker-2" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 1 – /etc/network/interfaces sur k3s-worker-2 – ens33 DHCP + ens34 statique 192.168.110.12</p>
+          <p class="proof__explain">On voit les deux blocs de configuration : ens33 en DHCP pour le NAT VMware (accès Internet), et ens34 avec une adresse statique 192.168.110.12 sur VMnet11. Cette configuration est identique sur chaque VM, seule l'adresse ens34 change.</p>
+          <img src="../assets/K3s/image11.png" alt="Fig. 2 – ip a sur k3s-master" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 2 – ip a sur k3s-master – ens33 (192.168.8.168) + ens34 (192.168.110.10) – les deux interfaces UP</p>
+          <p class="proof__explain">Les deux interfaces sont en état UP avec leurs IPs respectives. L'interface ens34 porte l'IP 192.168.110.10/24 utilisée par K3s pour toutes les communications inter-nœuds du cluster.</p>
+          <img src="../assets/K3s/image1.png" alt="Fig. 3 – ip a sur k3s-worker-1" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 3 – ip a sur k3s-worker-1 – ens33 (192.168.8.169) + ens34 (192.168.110.11)</p>
+          <p class="proof__explain">Configuration identique au master : ens34 porte l'IP 192.168.110.11/24. Le worker peut communiquer avec le master sur 192.168.110.10:6443 pour recevoir ses instructions de l'API Server K3s.</p>
+        </div>
+
+        <div class="proof">
+          <div class="proof__header"><span class="proof__num">P2</span><span class="proof__title">Cluster K3s opérationnel</span></div>
+          <div class="info-box"><span class="info-box__icon">ℹ</span><span>On vérifie que K3s s'installe correctement sur chaque nœud via les logs systemd, puis que les 4 nœuds apparaissent en état Ready depuis le master.</span></div>
+          <img src="../assets/K3s/image9.png" alt="Fig. 4 – Installation K3s sur k3s-worker-1" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 4 – Installation K3s sur k3s-worker-1 – v1.35.5+k3s1 téléchargé, k3s-agent activé via systemd</p>
+          <p class="proof__explain">Le script télécharge le binaire v1.35.5+k3s1, crée le service systemd k3s-agent et le démarre. La ligne "systemd: Starting k3s-agent" confirme que le worker contacte le control plane sur 192.168.110.10:6443.</p>
+          <img src="../assets/K3s/image8.png" alt="Fig. 5 – Installation K3s sur k3s-storage" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 5 – Installation K3s sur k3s-storage – le nœud rejoint le cluster comme agent de stockage</p>
+          <p class="proof__explain">Même procédure sur k3s-storage. Ce nœud n'exécutera pas de workloads applicatifs : il est dédié à Longhorn qui y stockera les réplicas des volumes persistants.</p>
+        </div>
+
+        <div class="proof">
+          <div class="proof__header"><span class="proof__num">P3</span><span class="proof__title">Stockage persistant Longhorn</span></div>
+          <div class="info-box"><span class="info-box__icon">ℹ</span><span>On vérifie que Helm déploie Longhorn correctement, que tous les pods sont Running et que le dashboard confirme l'état Healthy des volumes.</span></div>
+          <img src="../assets/K3s/image7.png" alt="Fig. 6 – helm install longhorn" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 6 – helm install longhorn – STATUS: deployed – Longhorn is now installed on the cluster</p>
+          <p class="proof__explain">Le statut "STATUS: deployed" confirme que Helm a déployé avec succès l'ensemble des ressources Longhorn. Les warnings "unrecognized format int64" sont inoffensifs.</p>
+          <img src="../assets/K3s/image23.png" alt="Fig. 7 – kubectl get pods -n longhorn-system" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 7 – kubectl get pods -n longhorn-system – tous les pods Running (CSI, instance-managers, manager)</p>
+          <p class="proof__explain">On voit les 4 instance-managers (un par nœud), les 4 longhorn-manager, les drivers CSI. Tous sont en état Running avec 0 restart, ce qui confirme un déploiement stable.</p>
+          <img src="../assets/K3s/image24.png" alt="Fig. 8 – Dashboard Longhorn" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 8 – Dashboard Longhorn – 2 volumes Healthy, 111 Gi disponibles, 4 nœuds actifs</p>
+          <p class="proof__explain">Le dashboard confirme l'état global : 2 volumes Healthy, 111 Gi schedulables sur les 4 nœuds, 30 Gi utilisés. Aucun volume Degraded ni Fault.</p>
+        </div>
+
+        <div class="proof">
+          <div class="proof__header"><span class="proof__num">P4</span><span class="proof__title">Monitoring Grafana + Prometheus</span></div>
+          <div class="info-box"><span class="info-box__icon">ℹ</span><span>On vérifie l'installation du chart, les services dans le namespace monitoring, la configuration des Ingress HTTPS et l'accès à Grafana avec des métriques vivantes.</span></div>
+          <img src="../assets/K3s/image6.png" alt="Fig. 9 – helm install kube-prometheus-stack" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 9 – helm install kube-prometheus-stack – STATUS: deployed, namespace monitoring créé</p>
+          <p class="proof__explain">Le chart installe en une commande Prometheus, Grafana, Alertmanager, node-exporter et kube-state-metrics.</p>
+          <img src="../assets/K3s/image5.png" alt="Fig. 10 – kubectl get svc -n monitoring" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 10 – kubectl get svc -n monitoring – ClusterIPs Grafana (80/TCP), Prometheus (9090/TCP), Alertmanager (9093/TCP)</p>
+          <p class="proof__explain">Les services sont en ClusterIP, accessibles uniquement depuis l'intérieur du cluster. C'est pour cette raison qu'on crée des Ingress avec Traefik pour les exposer en HTTPS vers l'extérieur.</p>
+          <img src="../assets/K3s/image22.png" alt="Fig. 11 – grafana-ingress.yaml" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 11 – grafana-ingress.yaml – annotations Traefik websecure + Cert-Manager selfsigned-issuer</p>
+          <p class="proof__explain">L'annotation traefik.ingress.kubernetes.io/router.entrypoints: websecure indique à Traefik d'exposer le service sur HTTPS (port 443). L'annotation cert-manager.io/cluster-issuer: selfsigned-issuer déclenche la génération automatique du certificat TLS.</p>
+          <img src="../assets/K3s/image4.png" alt="Fig. 12 – Page de login Grafana" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 12 – Page de login Grafana – accessible via https://grafana.k3s.local – certificat TLS actif</p>
+          <p class="proof__explain">Grafana est accessible depuis Windows via grafana.k3s.local (entrée ajoutée dans le fichier hosts). L'alerte "Non sécurisé" est attendue pour un certificat auto-signé – en production on utiliserait Let's Encrypt.</p>
+          <img src="../assets/K3s/image20.png" alt="Fig. 13 – Dashboard Grafana" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 13 – Dashboard Grafana – namespace wordpress – métriques CPU pods WordPress et MariaDB en temps réel</p>
+          <p class="proof__explain">Le dashboard Kubernetes / Compute Resources / Namespace montre la consommation CPU des pods wordpress et mariadb. Les courbes confirment que Prometheus collecte bien leurs métriques via node-exporter.</p>
+        </div>
+
+        <div class="proof">
+          <div class="proof__header"><span class="proof__num">P5</span><span class="proof__title">Pipeline GitOps – Gitea + ArgoCD</span></div>
+          <div class="info-box"><span class="info-box__icon">ℹ</span><span>On vérifie qu'ArgoCD détecte le dépôt Gitea et synchronise automatiquement les applications. Le statut "Healthy + Synced" confirme que l'état du cluster correspond aux manifests Git.</span></div>
+          <img src="../assets/K3s/image19.png" alt="Fig. 14 – ArgoCD nginx Healthy Synced" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 14 – ArgoCD – application nginx • Healthy • Synced – synchronisation automatique active</p>
+          <p class="proof__explain">"Healthy" signifie que tous les pods sont Running. "Synced" signifie que l'état du cluster correspond exactement aux manifests dans Gitea. "Last Sync" montre que la synchronisation automatique fonctionne.</p>
+          <img src="../assets/K3s/image18.png" alt="Fig. 15 – ArgoCD détail myapp" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 15 – ArgoCD détail myapp – Healthy + Synced to HEAD – dépôt k3s-apps sur Gitea</p>
+          <p class="proof__explain">La carte montre le lien ArgoCD ↔ Gitea : dépôt source http://10.43.247.44:3000/tom/k3s-apps, chemin /myapp, référence HEAD. À chaque commit, ArgoCD synchronise automatiquement le cluster.</p>
+        </div>
+
+        <div class="proof">
+          <div class="proof__header"><span class="proof__num">P6</span><span class="proof__title">Registry privée Harbor + scan CVE Trivy</span></div>
+          <div class="info-box"><span class="info-box__icon">ℹ</span><span>On vérifie le cycle DevSecOps complet : Harbor déployé, image v1 poussée et CVE détectée, image v2 corrigée via apk upgrade avec re-scan propre.</span></div>
+          <img src="../assets/K3s/image17.png" alt="Fig. 16 – helm install harbor" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 16 – helm install harbor – STATUS: deployed – PVCs Longhorn créés pour la registry</p>
+          <p class="proof__explain">Harbor est installé avec Longhorn comme StorageClass pour tous ses PVCs (registry, jobservice, database, redis, trivy). Cela garantit la persistance des images et des résultats de scan.</p>
+          <img src="../assets/K3s/image2.png" alt="Fig. 17 – docker push myapp:v1" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 17 – docker build + push harbor.k3s.local/k3s-lab/myapp:v1 – tous les layers poussés, digest SHA256 confirmé</p>
+          <p class="proof__explain">L'image est construite depuis une base nginx:alpine. Dès la fin du push, Trivy lance automatiquement un scan CVE – la CVE-2026-6732 (Haute) sera détectée dans les paquets Alpine non mis à jour.</p>
+          <img src="../assets/K3s/image16.png" alt="Fig. 18 – docker build myapp:v2" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 18 – docker build myapp:v2 – RUN apk upgrade --no-cache corrige CVE-2026-6732 – push réussi</p>
+          <p class="proof__explain">L'ajout de RUN apk upgrade --no-cache met à jour tous les paquets Alpine. On voit la mise à jour des librairies vulnérables (aom-libs, libxml2). Le re-scan Trivy sur v2 ne détecte aucune vulnérabilité : le cycle DevSecOps est complet.</p>
+        </div>
+
+        <div class="proof">
+          <div class="proof__header"><span class="proof__num">P7</span><span class="proof__title">Politiques de sécurité Kyverno</span></div>
+          <div class="info-box"><span class="info-box__icon">ℹ</span><span>On vérifie que Kyverno est installé et que la ClusterPolicy est active en mode Enforce. La tentative de créer un pod root doit être bloquée immédiatement par l'Admission Webhook.</span></div>
+          <img src="../assets/K3s/image15.png" alt="Fig. 19 – helm install kyverno" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 19 – helm install kyverno v1.18.1 – Admission Controller, CRDs et Reports controller actifs</p>
+          <p class="proof__explain">Kyverno installe 5 composants : CRDs, Admission Controller (intercepte les requêtes), Reports Controller, Cleanup Controller et Background Controller. Le WARNING sur le replica count est attendu en lab mono-réplica.</p>
+          <img src="../assets/K3s/image14.png" alt="Fig. 20 – kyverno-policy.yaml" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 20 – kyverno-policy.yaml – ClusterPolicy disallow-root-user – validationFailureAction: Enforce</p>
+          <p class="proof__explain">La politique cible tous les pods et vérifie que securityContext.runAsNonRoot est à true. En mode Enforce, toute tentative de créer un pod sans cette contrainte est rejetée immédiatement.</p>
+        </div>
+
+        <div class="proof">
+          <div class="proof__header"><span class="proof__num">P8</span><span class="proof__title">Load Balancer bare-metal MetalLB</span></div>
+          <div class="info-box"><span class="info-box__icon">ℹ</span><span>On vérifie que MetalLB assigne bien une IP de la plage 192.168.110.100-120 à un service LoadBalancer, et que cette IP est directement accessible depuis Windows sans aucune règle NAT.</span></div>
+          <img src="../assets/K3s/image13.png" alt="Fig. 21 – kubectl apply metallb" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 21 – kubectl apply metallb-native.yaml – CRDs IPAddressPool + L2Advertisement créés</p>
+          <p class="proof__explain">MetalLB crée ses CRDs (IPAddressPool, L2Advertisement, BGPPeer) et déploie le controller (assigne les IPs) et le speaker (répond aux requêtes ARP en mode Layer 2).</p>
+          <img src="../assets/K3s/image12.png" alt="Fig. 22 – Welcome to nginx MetalLB" onerror="this.style.display='none'"/>
+          <p class="proof__caption">Fig. 22 – http://192.168.110.101 – Welcome to nginx! – service accessible via IP externe MetalLB</p>
+          <p class="proof__explain">La page nginx est accessible directement depuis Windows via 192.168.110.101, sans NAT ni port-forwarding. MetalLB a assigné cette IP du pool 192.168.110.100-120 et le speaker l'annonce via ARP sur VMnet11.</p>
+        </div>
+      </section>
+
+      <!-- 6. BILAN -->
+      <section class="section" id="bilan">
+        <div class="section__header">
+          <span class="section__num">06</span>
+          <h2 class="section__title">Bilan et Compétences</h2>
+        </div>
+
+        <h3>Difficultés rencontrées</h3>
+        <table class="bilan-table">
+          <thead><tr><th>Difficulté</th><th>Solution</th></tr></thead>
+          <tbody>
+            <tr><td>Helm kubeconfig</td><td>export KUBECONFIG=/etc/rancher/k3s/k3s.yaml + chmod 644</td></tr>
+            <tr><td>Workers ne pullaient pas Harbor</td><td>registries.yaml sur chaque worker + projet Harbor en public</td></tr>
+            <tr><td>Longhorn FailedAttachVolume</td><td>Suppression complète et recréation propre des ressources</td></tr>
+            <tr><td>RAM saturée Grafana + Prometheus</td><td>Limits : Grafana 256 Mi, Prometheus 300 Mi</td></tr>
+            <tr><td>ArgoCD Ingress HTTPS</td><td>Patch --insecure + Traefik HTTPS frontal</td></tr>
+            <tr><td>IPs DHCP multiples ens33</td><td>sudo reboot pour nettoyer les baux DHCP</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Compétences BTS SIO SISR validées</h3>
+        <table class="bilan-table">
+          <thead><tr><th>Bloc</th><th>Compétence</th><th>Mise en œuvre</th></tr></thead>
+          <tbody>
+            <tr><td>B1.1</td><td>Gérer le patrimoine</td><td>Installation 4 VMs Debian 12, services systemd, réseau statique dual-interface</td></tr>
+            <tr><td>B1.2</td><td>Répondre aux incidents</td><td>Diagnostic et résolution : Longhorn FailedAttachVolume, Helm kubeconfig, ArgoCD HTTPS</td></tr>
+            <tr><td>B1.3</td><td>Présence en ligne</td><td>WordPress + MariaDB, PVC Longhorn, Ingress HTTPS Cert-Manager</td></tr>
+            <tr><td>B1.4</td><td>Mode projet</td><td>Gestion des dépendances, déploiement ordonné des 14 composants</td></tr>
+            <tr><td>B1.5</td><td>Services</td><td>K3s, Longhorn, Grafana, ArgoCD, Harbor, WordPress – tous en HTTPS</td></tr>
+            <tr><td>Cyber</td><td>Sécurité (CIA)</td><td>Confidentialité : Kyverno + Harbor. Intégrité : Trivy CVE. Disponibilité : Longhorn</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Compétences acquises</h3>
+        <ul class="bullet-list">
+          <li>Maîtrise de l'administration d'un cluster Kubernetes multi-nœuds (K3s)</li>
+          <li>Déploiement d'applications complexes via Helm (14 composants)</li>
+          <li>Mise en pratique du GitOps : Gitea + ArgoCD (synchronisation automatique)</li>
+          <li>Application des pratiques DevSecOps : scan CVE Trivy, politiques admission Kyverno</li>
+          <li>Gestion du réseau virtualisé : dual-interface, MetalLB, Ingress Traefik</li>
+          <li>Diagnostic et résolution de problèmes en environnement K8s (6 incidents résolus)</li>
+        </ul>
+      </section>
+
+      <footer class="fiche-footer">
+        <p class="fiche-footer__kanji">クラスター · セキュリティ · デプロイ</p>
+        <p class="fiche-footer__text">BTS SIO SISR · Nexa Digital School · Tom Marcorelli · 2025-2026</p>
+      </footer>
+
+    </main>
+  </div>
+
+  <script>
+    // Scrollspy
+    const sections = document.querySelectorAll('.section, [id]');
+    const links = document.querySelectorAll('.nav-link');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          links.forEach(l => l.classList.remove('active'));
+          const link = document.querySelector(`.nav-link[href="#${e.target.id}"]`);
+          if (link) link.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+
+    document.querySelectorAll('[id]').forEach(el => observer.observe(el));
+
+    // Animate sections on scroll
+    const sectObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.05 });
+    document.querySelectorAll('.section').forEach(s => sectObs.observe(s));
+  </script>
+
+  <script>
+    // Curseur manga identique au portfolio
+    (function() {
+      if (window.matchMedia('(hover: none)').matches) return;
+      const pen = document.createElement('div');
+      pen.setAttribute('aria-hidden', 'true');
+      pen.textContent = '✒️';
+      pen.style.cssText = 'position:fixed;pointer-events:none;font-size:20px;transform:rotate(-30deg);z-index:99999;left:-100px;top:-100px;line-height:1;transition:none;';
+      document.body.appendChild(pen);
+      document.addEventListener('mousemove', e => {
+        pen.style.left = (e.clientX + 5) + 'px';
+        pen.style.top  = (e.clientY - 20) + 'px';
+        if (Math.random() > 0.45) {
+          const dot = document.createElement('div');
+          dot.setAttribute('aria-hidden', 'true');
+          const size = 2 + Math.random() * 5;
+          dot.style.cssText = `position:fixed;pointer-events:none;border-radius:50%;z-index:99998;width:${size}px;height:${size}px;background:rgba(221,238,248,0.7);left:${e.clientX+14}px;top:${e.clientY+2}px;transform:translate(-50%,-50%);animation:mangaInkFade 0.7s ease-out forwards;`;
+          document.body.appendChild(dot);
+          setTimeout(() => dot.remove(), 700);
+        }
+      });
+      document.addEventListener('mouseleave', () => { pen.style.left = '-100px'; pen.style.top = '-100px'; });
+      document.addEventListener('click', e => {
+        for (let i = 0; i < 10; i++) {
+          const drop = document.createElement('div');
+          drop.setAttribute('aria-hidden', 'true');
+          const angle = (i/10)*Math.PI*2 + Math.random()*0.4;
+          const dist  = 8 + Math.random()*22;
+          const size  = 3 + Math.random()*8;
+          drop.style.cssText = `position:fixed;pointer-events:none;border-radius:50%;z-index:99997;width:${size}px;height:${size}px;background:#eab308;left:${e.clientX+Math.cos(angle)*dist}px;top:${e.clientY+Math.sin(angle)*dist}px;transform:translate(-50%,-50%);animation:mangaSplash 0.55s ease-out forwards;`;
+          document.body.appendChild(drop);
+          setTimeout(() => drop.remove(), 600);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
